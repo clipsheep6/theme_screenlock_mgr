@@ -25,7 +25,7 @@ std::string ScreenLockJsUtil::Convert2String(const napi_env env, napi_value jsSt
         GET_AND_THROW_LAST_ERROR((env));
         maxLen = ScreenLockJsUtil::MAX_LEN;
     }
-    if (maxLen <= 0) {
+    if (maxLen == 0) {
         return std::string();
     }
     char *buf = new char[maxLen + 1];

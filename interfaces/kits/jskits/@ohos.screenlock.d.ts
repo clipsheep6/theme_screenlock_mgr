@@ -93,8 +93,8 @@ declare namespace screenLock {
    * @systemapi Hide this for inner system use.
    * @since 8
    */
-  function sendScreenLockEvent(event: String, parameter: number, callback: AsyncCallback<boolean>): void;
-  function sendScreenLockEvent(event: String, parameter: number): Promise<boolean>;
+  function sendScreenLockEvent(event: string, parameter: number, callback: AsyncCallback<boolean>): void;
+  function sendScreenLockEvent(event: string, parameter: number): Promise<boolean>;
 
 
   /**
@@ -108,15 +108,15 @@ declare namespace screenLock {
    * api for unit test
    * @since 7
    */
-  function test_runtimeNotify(event: String, parameter: number, callback: AsyncCallback<boolean>): void;
-  function test_runtimeNotify(event: String, parameter: number): Promise<boolean>;
+  function test_runtimeNotify(event: string, parameter: number, callback: AsyncCallback<boolean>): void;
+  function test_runtimeNotify(event: string, parameter: number): Promise<boolean>;
 
   /**
    * api for unit test
    * @since 7
    */
-  function test_getRuntimeState(event: String, callback: AsyncCallback<number>): void;
-  function test_getRuntimeState(event: String): Promise<number>;
+  function test_getRuntimeState(event: string, callback: AsyncCallback<number>): void;
+  function test_getRuntimeState(event: string): Promise<number>;
 }
 
 export default screenLock;

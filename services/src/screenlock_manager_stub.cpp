@@ -159,12 +159,11 @@ int32_t ScreenLockManagerStub::OnScreenLockOff(MessageParcel &data, MessageParce
 
 bool ScreenLockManagerStub::OnSendScreenLockEvent(MessageParcel &data, MessageParcel &reply)
 {
-    bool flag = false;
     std::string event = data.ReadString();
     int param = data.ReadInt32();
     SCLOCK_HILOGD("event=%{public}s ", event.c_str());
     SCLOCK_HILOGD("param=%{public}d ", param);
-    flag = SendScreenLockEvent(event, param);
+    bool flag = SendScreenLockEvent(event, param);
     reply.WriteBool(flag);
     return flag;
 }
@@ -172,28 +171,25 @@ bool ScreenLockManagerStub::OnSendScreenLockEvent(MessageParcel &data, MessagePa
 bool ScreenLockManagerStub::OnTest_SetScreenLocked(MessageParcel &data, MessageParcel &reply)
 {
     SCLOCK_HILOGD("ScreenLockManagerStub Test_SetScreenLocked started.");
-    bool flag = false;
     bool isScreenlocked = data.ReadBool();
-    flag = Test_SetScreenLocked(isScreenlocked);
+    bool flag = Test_SetScreenLocked(isScreenlocked);
     reply.WriteBool(flag);
     return flag;
 }
 bool ScreenLockManagerStub::OnTest_RuntimeNotify(MessageParcel &data, MessageParcel &reply)
 {
-    bool flag = false;
     std::string event = data.ReadString();
     int param = data.ReadInt32();
     SCLOCK_HILOGD("ScreenLockManagerStub OnTest_RuntimeNotify started.  event=%{public}s", event.c_str());
     SCLOCK_HILOGD("ScreenLockManagerStub OnTest_RuntimeNotify started.  param=%{public}d", param);
-    flag = Test_RuntimeNotify(event, param);
+    bool flag = Test_RuntimeNotify(event, param);
     reply.WriteBool(flag);
     return flag;
 }
 int32_t ScreenLockManagerStub::OnTest_GetRuntimeState(MessageParcel &data, MessageParcel &reply)
 {
-    int flag = -100;
     std::string event = data.ReadString();
-    flag = Test_GetRuntimeState(event);
+    int flag = Test_GetRuntimeState(event);
     reply.WriteInt32(flag);
     return flag;
 }

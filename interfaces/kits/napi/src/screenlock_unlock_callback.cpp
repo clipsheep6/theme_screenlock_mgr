@@ -83,7 +83,6 @@ void UvWorkOnCallBackInt(uv_work_t *work, int status)
     }
     if (work != nullptr) {
         delete work;
-        work = nullptr;
     }
     SCLOCK_HILOGD("UvWorkOnCallBackInt end");
 }

@@ -461,8 +461,7 @@ bool ScreenLockSystemAbility::GetSecure()
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callingUid, userId);
     SCLOCK_HILOGD("userId=%{public}d", userId);
     auto getInfoCallback = std::make_shared<ScreenLockGetInfoCallback>();
-    int32_t result = static_cast<int32_t>(IDMResultCode::FAIL);
-    result = UserIDMClient::GetInstance().GetAuthInfo(userId, AuthType::PIN, getInfoCallback);
+    int32_t result = UserIDMClient::GetInstance().GetAuthInfo(userId, AuthType::PIN, getInfoCallback);
     SCLOCK_HILOGI("GetAuthInfo AuthType::PIN result = %{public}d", result);
     if (result == static_cast<int32_t>(IDMResultCode::SUCCESS)) {
         std::vector<OHOS::UserIAM::UserIDM::CredentialInfo> pinInfo;
