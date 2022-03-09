@@ -81,33 +81,32 @@ bool ScreenlockSystemAbilityCallback::MatchEventType(const std::string &type, co
     return goalTypeStr.compare(type) == 0;
 }
 
-auto OnUvWorkBoolCallback =
-    [](uv_work_t *work, int status) {
+auto OnUvWorkBoolCallback = [](uv_work_t *work, int status) {
     SCLOCK_HILOGD("OnUvWorkBoolCallback status = %{public}d", status);
-        ScreenlockOnCallBack *screenlockOnCallBackPtr = static_cast<ScreenlockOnCallBack *>(work->data);
-        if (screenlockOnCallBackPtr == nullptr) {
-            delete work;
-            return;
-        }
-        napi_value undefined = 0;
-        napi_get_undefined(screenlockOnCallBackPtr->env, &undefined);
-        napi_value callbackFunc = nullptr;
-        napi_get_reference_value(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->callbackref, &callbackFunc);
-        napi_value callbackResult = nullptr;
-        napi_value callbackValues[2] = {0};
-        napi_get_undefined(screenlockOnCallBackPtr->env, &callbackValues[0]);
-        napi_get_boolean(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->boolCallBackValue, &callbackValues[1]);
-        napi_call_function(
-            screenlockOnCallBackPtr->env, nullptr, callbackFunc, ARGS_SIZE_TWO, callbackValues, &callbackResult);
-        if (screenlockOnCallBackPtr != nullptr) {
-            delete screenlockOnCallBackPtr;
-            screenlockOnCallBackPtr = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
-    };
+    ScreenlockOnCallBack *screenlockOnCallBackPtr = static_cast<ScreenlockOnCallBack *>(work->data);
+    if (screenlockOnCallBackPtr == nullptr) {
+        delete work;
+        return;
+    }
+    napi_value undefined = 0;
+    napi_get_undefined(screenlockOnCallBackPtr->env, &undefined);
+    napi_value callbackFunc = nullptr;
+    napi_get_reference_value(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->callbackref, &callbackFunc);
+    napi_value callbackResult = nullptr;
+    napi_value callbackValues[2] = {0};
+    napi_get_undefined(screenlockOnCallBackPtr->env, &callbackValues[0]);
+    napi_get_boolean(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->boolCallBackValue, &callbackValues[1]);
+    napi_call_function(
+        screenlockOnCallBackPtr->env, nullptr, callbackFunc, ARGS_SIZE_TWO, callbackValues, &callbackResult);
+    if (screenlockOnCallBackPtr != nullptr) {
+        delete screenlockOnCallBackPtr;
+        screenlockOnCallBackPtr = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
+};
 
 void ScreenlockSystemAbilityCallback::OnCallBack(const std::string &event, bool result)
 {
@@ -146,32 +145,31 @@ void ScreenlockSystemAbilityCallback::OnCallBack(const std::string &event, bool 
     }
 }
 
-auto OnVoidUvWorkCallback =
-    [](uv_work_t *work, int status) {
-        SCLOCK_HILOGD("OnVoidUvWorkCallback status = %{public}d", status);
-        ScreenlockOnCallBack *screenlockOnCallBackPtr = static_cast<ScreenlockOnCallBack *>(work->data);
-        if (screenlockOnCallBackPtr == nullptr) {
-            delete work;
-            return;
-        }
-        napi_value undefined = 0;
-        napi_get_undefined(screenlockOnCallBackPtr->env, &undefined);
-        napi_value callbackFunc = nullptr;
-        napi_get_reference_value(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->callbackref, &callbackFunc);
-        napi_value callbackResult = nullptr;
-        napi_value callbackValues[1] = {0};
-        napi_get_undefined(screenlockOnCallBackPtr->env, &callbackValues[0]);
-        napi_call_function(
-            screenlockOnCallBackPtr->env, nullptr, callbackFunc, ARGS_SIZE_ONE, callbackValues, &callbackResult);
-        if (screenlockOnCallBackPtr != nullptr) {
-            delete screenlockOnCallBackPtr;
-            screenlockOnCallBackPtr = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
-    };
+auto OnVoidUvWorkCallback = [](uv_work_t *work, int status) {
+    SCLOCK_HILOGD("OnVoidUvWorkCallback status = %{public}d", status);
+    ScreenlockOnCallBack *screenlockOnCallBackPtr = static_cast<ScreenlockOnCallBack *>(work->data);
+    if (screenlockOnCallBackPtr == nullptr) {
+        delete work;
+        return;
+    }
+    napi_value undefined = 0;
+    napi_get_undefined(screenlockOnCallBackPtr->env, &undefined);
+    napi_value callbackFunc = nullptr;
+    napi_get_reference_value(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->callbackref, &callbackFunc);
+    napi_value callbackResult = nullptr;
+    napi_value callbackValues[1] = {0};
+    napi_get_undefined(screenlockOnCallBackPtr->env, &callbackValues[0]);
+    napi_call_function(
+        screenlockOnCallBackPtr->env, nullptr, callbackFunc, ARGS_SIZE_ONE, callbackValues, &callbackResult);
+    if (screenlockOnCallBackPtr != nullptr) {
+        delete screenlockOnCallBackPtr;
+        screenlockOnCallBackPtr = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
+};
 
 void ScreenlockSystemAbilityCallback::OnCallBack(const std::string &event)
 {
@@ -209,34 +207,33 @@ void ScreenlockSystemAbilityCallback::OnCallBack(const std::string &event)
     }
 }
 
-auto OnIntUvWorkCallback =
-    [](uv_work_t *work, int status) {
-        SCLOCK_HILOGD("OnIntUvWorkCallback status = %{public}d", status);
-        ScreenlockOnCallBack *screenlockOnCallBackPtr = static_cast<ScreenlockOnCallBack *>(work->data);
-        if (screenlockOnCallBackPtr == nullptr) {
-            delete work;
-            return;
-        }
-        napi_value undefined = 0;
-        napi_get_undefined(screenlockOnCallBackPtr->env, &undefined);
-        napi_value callbackFunc = nullptr;
-        napi_get_reference_value(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->callbackref, &callbackFunc);
-        napi_value callbackResult = nullptr;
-        napi_value callbackValues[2] = {0};
-        napi_get_undefined(screenlockOnCallBackPtr->env, &callbackValues[0]);
-        napi_create_int32(screenlockOnCallBackPtr->env, static_cast<int32_t>(screenlockOnCallBackPtr->intCallbackValue),
-            &callbackValues[1]);
-        napi_call_function(
-            screenlockOnCallBackPtr->env, nullptr, callbackFunc, ARGS_SIZE_TWO, callbackValues, &callbackResult);
-        if (screenlockOnCallBackPtr != nullptr) {
-            delete screenlockOnCallBackPtr;
-            screenlockOnCallBackPtr = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
-    };
+auto OnIntUvWorkCallback = [](uv_work_t *work, int status) {
+    SCLOCK_HILOGD("OnIntUvWorkCallback status = %{public}d", status);
+    ScreenlockOnCallBack *screenlockOnCallBackPtr = static_cast<ScreenlockOnCallBack *>(work->data);
+    if (screenlockOnCallBackPtr == nullptr) {
+        delete work;
+        return;
+    }
+    napi_value undefined = 0;
+    napi_get_undefined(screenlockOnCallBackPtr->env, &undefined);
+    napi_value callbackFunc = nullptr;
+    napi_get_reference_value(screenlockOnCallBackPtr->env, screenlockOnCallBackPtr->callbackref, &callbackFunc);
+    napi_value callbackResult = nullptr;
+    napi_value callbackValues[2] = {0};
+    napi_get_undefined(screenlockOnCallBackPtr->env, &callbackValues[0]);
+    napi_create_int32(screenlockOnCallBackPtr->env, static_cast<int32_t>(screenlockOnCallBackPtr->intCallbackValue),
+        &callbackValues[1]);
+    napi_call_function(
+        screenlockOnCallBackPtr->env, nullptr, callbackFunc, ARGS_SIZE_TWO, callbackValues, &callbackResult);
+    if (screenlockOnCallBackPtr != nullptr) {
+        delete screenlockOnCallBackPtr;
+        screenlockOnCallBackPtr = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
+};
 
 void ScreenlockSystemAbilityCallback::OnCallBack(const std::string &event, int result)
 {
