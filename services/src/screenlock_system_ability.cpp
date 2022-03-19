@@ -510,6 +510,8 @@ bool ScreenLockSystemAbility::On(const sptr<ScreenLockSystemAbilityInterface> &l
             SCLOCK_HILOGE("ScreenLockSystemAbility::On insert type=%{public}s object fail.", type.c_str());
             return false;
         }
+    } else {
+        registeredListeners_[type] = listener;
     }
     SCLOCK_HILOGI("ScreenLockSystemAbility::On end.");
     return true;
