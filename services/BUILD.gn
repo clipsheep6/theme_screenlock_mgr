@@ -39,7 +39,6 @@ ohos_shared_library("screenlock_server") {
     "//base/telephony/core_service/interfaces/innerkits/include",
     "//base/miscservices/screenlock/frameworks/kitsimpl/include",
     "//base/user_idm/interfaces/innerkits/include",
-    "//third_party/json/include",
   ]
   deps = [
     "//base/miscservices/screenlock/utils:screenlock_utils",
@@ -49,6 +48,7 @@ ohos_shared_library("screenlock_server") {
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/windowmanager/utils:libwmutil",
+    "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
   ]
   external_deps = [
