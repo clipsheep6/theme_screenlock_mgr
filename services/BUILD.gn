@@ -51,6 +51,7 @@ ohos_shared_library("screenlock_server") {
     "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
   ]
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
   external_deps = [
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
