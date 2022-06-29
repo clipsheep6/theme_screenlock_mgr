@@ -20,14 +20,14 @@
 
 namespace OHOS {
 namespace ScreenLock {
-class ScreenLockGetInfoCallback final : public OHOS::UserIAM::UserIDM::GetInfoCallback {
+class ScreenLockGetInfoCallback final : public OHOS::UserIam::UserIDM::GetInfoCallback {
 public:
     /**
      * @brief
      * @param info.
      * @return void.
      */
-    void OnGetInfo(std::vector<OHOS::UserIAM::UserIDM::CredentialInfo> &info) override;
+    void OnGetInfo(std::vector<OHOS::UserIam::UserIDM::CredentialInfo> &info) override;
 };
 } // namespace ScreenLock
 } // namespace OHOS
