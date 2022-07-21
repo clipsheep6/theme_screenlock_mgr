@@ -114,21 +114,23 @@ void ScreenLockSystemAbility::OnStart()
         displayPowerEventListener_ = new ScreenLockSystemAbility::ScreenLockDisplayPowerEventListener();
     }
     WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
-    {auto callback = [=]() {
-        flag_ = DisplayManager::GetInstance().RegisterDisplayPowerEventListener(displayPowerEventListener_);
-        if (flag_) {
-            SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener success.");
-            break;
-        } else {
-            SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener fail.");
+    {
+        auto callback = [=]() {
+            flag_ = DisplayManager::GetInstance().RegisterDisplayPowerEventListener(displayPowerEventListener_);
+        };
+        int trytime = 3;
+        int minTimeValue = 0;
+        while (trytime > minTimeValue) {
+            serviceHandler_->PostTask(callback, INTERVAL_FIRST);
+            if (flag_) {
+                SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener success.");
+                break;
+            } else {
+                SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener fail.");
+            }
+            --trytime;
         }
-    };
-    int trytime = 3;
-    int minTimeValue = 0;
-    while (trytime > minTimeValue) {
-        serviceHandler_->PostTask(callback, INTERVAL_FIRST);
-        --trytime;
-    }}
+    }
     if (flag_) {
         state_ = ServiceRunningState::STATE_RUNNING;
         auto callback = [=]() { OnSystemReady(); };
@@ -260,7 +262,8 @@ void ScreenLockSystemAbility::OnSystemReady()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started.");
     std::string type = SYSTEM_READY;
-    auto callback = [=]() {
+    bool isExitFlag = false;
+    auto callback = [&]() {
         auto iter = registeredListeners_.find(type);
         if (iter != registeredListeners_.end()) {
             SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
@@ -270,7 +273,6 @@ void ScreenLockSystemAbility::OnSystemReady()
             SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., flag_ = %{public}d", flag_);
         }
     };
-    bool isExitFlag = false;
     int tryTime = 20;
     int minTryTime = 0;
     while (!isExitFlag && (tryTime > minTryTime)) {
