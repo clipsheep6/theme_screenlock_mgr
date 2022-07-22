@@ -42,8 +42,8 @@ ohos_unittest("ScreenLockServiceTest") {
     "//base/miscservices/screenlock/frameworks/kitsimpl:screenlock_client",
     "//base/miscservices/screenlock/services:screenlock_server",
     "//base/miscservices/screenlock/utils:screenlock_utils",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
