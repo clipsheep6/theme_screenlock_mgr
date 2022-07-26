@@ -40,18 +40,14 @@ ohos_shared_library("screenlock_client") {
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
   ]
-  deps = [
-    "//base/theme/screenlock_mgr/utils:screenlock_utils",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//base/theme/screenlock_mgr/utils:screenlock_utils" ]
   external_deps = [
     "ability_base:base",
     "hitrace_native:hitrace_meter",
-    "hitrace_native:libhitrace",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
   relative_install_dir = "module"
   subsystem_name = "theme"
