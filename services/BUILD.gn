@@ -15,7 +15,6 @@ import("//build/ohos.gni")
 
 config("screenlock_mgr_service_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
 
   cflags_cc = [ "-fexceptions" ]
 }
