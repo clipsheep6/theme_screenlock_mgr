@@ -51,7 +51,6 @@ using namespace OHOS::Telephony;
 REGISTER_SYSTEM_ABILITY_BY_ID(ScreenLockSystemAbility, SCREENLOCK_SERVICE_ID, true);
 const std::int64_t INIT_INTERVAL = 5000L;
 const std::int64_t INTERVAL_ZERO = 0L;
-const std::int64_t INTERVAL_FIRST = 1L;
 std::mutex ScreenLockSystemAbility::instanceLock_;
 sptr<ScreenLockSystemAbility> ScreenLockSystemAbility::instance_;
 std::shared_ptr<AppExecFwk::EventHandler> ScreenLockSystemAbility::serviceHandler_;
@@ -111,22 +110,18 @@ void ScreenLockSystemAbility::OnStart()
     if (displayPowerEventListener_ == nullptr) {
         displayPowerEventListener_ = new ScreenLockSystemAbility::ScreenLockDisplayPowerEventListener();
     }
-    {
-        auto callback = [=]() {
-            flag_ = DisplayManager::GetInstance().RegisterDisplayPowerEventListener(displayPowerEventListener_);
-        };
-        int trytime = 3;
-        int minTimeValue = 0;
-        while (trytime > minTimeValue) {
-            serviceHandler_->PostTask(callback, INTERVAL_FIRST);
-            if (flag_) {
-                SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener success.");
-                break;
-            } else {
-                SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener fail.");
-            }
-            --trytime;
+    int trytime = 3;
+    int minTimeValue = 0;
+    while (trytime > minTimeValue) {
+        flag_ = DisplayManager::GetInstance().RegisterDisplayPowerEventListener(displayPowerEventListener_);
+        if (flag_) {
+            SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener success.");
+            break;
+        } else {
+            SCLOCK_HILOGI("ScreenLockSystemAbility RegisterDisplayPowerEventListener fail.");
         }
+        --trytime;
+        sleep(1);
     }
     if (flag_) {
         state_ = ServiceRunningState::STATE_RUNNING;
@@ -244,22 +239,14 @@ void ScreenLockSystemAbility::OnSystemReady()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started.");
     std::string type = SYSTEM_READY;
-    bool isExitFlag = false;
-    auto callback = [&]() {
-        auto iter = registeredListeners_.find(type);
-        if (iter != registeredListeners_.end()) {
-            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
+    auto iter = registeredListeners_.find(type);
+    if (iter != registeredListeners_.end()) {
+        SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
+        auto callback = [=]() {
+            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started2.");
             iter->second->OnCallBack(type);
-            isExitFlag = true;
-        } else {
-            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., flag_ = %{public}d", flag_);
-        }
-    };
-    int tryTime = 20;
-    int minTryTime = 0;
-    while (!isExitFlag && (tryTime > minTryTime)) {
-        serviceHandler_->PostTask(callback, INTERVAL_FIRST);
-        --tryTime;
+        };
+        serviceHandler_->PostTask(callback, INTERVAL_ZERO);
     }
 }
 
