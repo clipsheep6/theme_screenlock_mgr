@@ -239,20 +239,14 @@ void ScreenLockSystemAbility::OnSystemReady()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started.");
     std::string type = SYSTEM_READY;
-    bool isExitFlag = false;
-    int tryTime = 20;
-    int minTryTime = 0;
-    while (!isExitFlag && (tryTime > minTryTime)) {
-        auto iter = registeredListeners_.find(type);
-        if (iter != registeredListeners_.end()) {
-            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
+    auto iter = registeredListeners_.find(type);
+    if (iter != registeredListeners_.end()) {
+        SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
+        auto callback = [=]() {
+            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started2.");
             iter->second->OnCallBack(type);
-            isExitFlag = true;
-        } else {
-            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., flag_ = %{public}d", flag_);
-            sleep(1);
-        }
-        --tryTime;
+        };
+        serviceHandler_->PostTask(callback, INTERVAL_ZERO);
     }
 }
 
