@@ -251,7 +251,7 @@ void ScreenLockSystemAbility::OnSystemReady()
                 isExitFlag = true;
             } else {
                 SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., flag_ = %{public}d", flag_);
-                -- tryTime;
+                --tryTime;
             }
         }
     };

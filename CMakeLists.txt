@@ -1,0 +1,60 @@
+cmake_minimum_required(VERSION 3.16)
+project(theme_screenlock_mgr)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(frameworks/kitsimpl/include)
+include_directories(interfaces/kits/napi/include)
+include_directories(services/include)
+include_directories(test/fuzztest/screenlockunlockcallback_fuzzer)
+include_directories(test/unittest)
+include_directories(utils/include)
+
+add_executable(theme_screenlock_mgr
+        frameworks/kitsimpl/include/screenlock_app_manager.h
+        frameworks/kitsimpl/include/screenlock_manager.h
+        frameworks/kitsimpl/include/screenlock_manager_proxy.h
+        frameworks/kitsimpl/include/screenlock_system_ability_interface.h
+        frameworks/kitsimpl/include/screenlock_system_ability_stub.h
+        frameworks/kitsimpl/src/screenlock_app_manager.cpp
+        frameworks/kitsimpl/src/screenlock_manager.cpp
+        frameworks/kitsimpl/src/screenlock_manager_proxy.cpp
+        frameworks/kitsimpl/src/screenlock_system_ability_stub.cpp
+        interfaces/kits/napi/include/async_call.h
+        interfaces/kits/napi/include/event_listener.h
+        interfaces/kits/napi/include/napi_screenlock_ability.h
+        interfaces/kits/napi/include/screenlock_js_util.h
+        interfaces/kits/napi/include/screenlock_system_ability_callback.h
+        interfaces/kits/napi/include/screenlock_unlock_callback.h
+        interfaces/kits/napi/src/async_call.cpp
+        interfaces/kits/napi/src/napi_screenlock_ability.cpp
+        interfaces/kits/napi/src/screenlock_js_util.cpp
+        interfaces/kits/napi/src/screenlock_system_ability_callback.cpp
+        interfaces/kits/napi/src/screenlock_unlock_callback.cpp
+        services/include/command.h
+        services/include/dump_helper.h
+        services/include/screenlock_get_info_callback.h
+        services/include/screenlock_manager_interface.h
+        services/include/screenlock_manager_stub.h
+        services/include/screenlock_system_ability.h
+        services/include/screenlock_system_ability_proxy.h
+        services/include/system_event_handler.h
+        services/src/command.cpp
+        services/src/dump_helper.cpp
+        services/src/screenlock_get_info_callback.cpp
+        services/src/screenlock_manager_stub.cpp
+        services/src/screenlock_system_ability.cpp
+        services/src/screenlock_system_ability_proxy.cpp
+        test/fuzztest/screenlockunlockcallback_fuzzer/screenlockunlockcallback_fuzzer.cpp
+        test/fuzztest/screenlockunlockcallback_fuzzer/screenlockunlockcallback_fuzzer.h
+        test/unittest/screenlock_event_list_test.h
+        test/unittest/screenlock_notify_test_instance.cpp
+        test/unittest/screenlock_notify_test_instance.h
+        test/unittest/screenlock_service_test.cpp
+        test/unittest/screenlock_service_test.h
+        test/unittest/screenlock_unlock_callback_test.cpp
+        test/unittest/screenlock_unlock_callback_test.h
+        utils/include/sclock_log.h
+        utils/include/screenlock_bundlename.h
+        utils/include/screenlock_common.h
+        utils/src/screenlock_bundlename.cpp)
