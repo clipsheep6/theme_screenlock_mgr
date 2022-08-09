@@ -249,8 +249,10 @@ void ScreenLockSystemAbility::OnSystemReady()
                 SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
                 iter->second->OnCallBack(type);
                 isExitFlag = true;
+            } else {
+                SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., flag_ = %{public}d", flag_);
+                -- tryTime;
             }
-            -- tryTime;
         }
     };
     serviceHandler_->PostTask(callback, INTERVAL_ZERO);
