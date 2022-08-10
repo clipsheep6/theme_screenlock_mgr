@@ -167,6 +167,7 @@ private:
     void OnChangeUser(const int newUserId);
     void OnScreenlockEnabled(bool enable);
     void OnExitAnimation();
+    void OnSystemReadyCallBack();
     void OnSystemReady();
     void RegisterDumpCommand();
     int32_t Init();
