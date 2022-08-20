@@ -51,7 +51,7 @@ using namespace OHOS::Telephony;
 REGISTER_SYSTEM_ABILITY_BY_ID(ScreenLockSystemAbility, SCREENLOCK_SERVICE_ID, true);
 const std::int64_t INIT_INTERVAL = 5000L;
 const std::int64_t INTERVAL_ZERO = 0L;
-const std::int64_t INTERVAL_READY = 1000L;
+const std::int64_t ONSYSTEMREADY_INTERVAL = 1000L;
 constexpr int MAX_RETRY_TIMES = 20;
 std::mutex ScreenLockSystemAbility::instanceLock_;
 sptr<ScreenLockSystemAbility> ScreenLockSystemAbility::instance_;
@@ -256,15 +256,15 @@ void ScreenLockSystemAbility::OnSystemReadyCallBack()
     }
     times++;
     SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., times = %{public}d", times);
-    auto callback = [=]() { OnSystemReadyCallBack(); };
-    serviceHandler_->PostTask(callback, INTERVAL_READY);
+    auto callback = [this]() { OnSystemReadyCallBack(); };
+    serviceHandler_->PostTask(callback, ONSYSTEMREADY_INTERVAL);
 }
 
 void ScreenLockSystemAbility::OnSystemReady()
 {
     std::string type = SYSTEM_READY;
     SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started.");
-    auto callback = [=]() { OnSystemReadyCallBack(); };
+    auto callback = [this]() { OnSystemReadyCallBack(); };
     serviceHandler_->PostTask(callback, INTERVAL_ZERO);
 }
 
