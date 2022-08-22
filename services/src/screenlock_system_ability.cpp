@@ -615,24 +615,7 @@ bool ScreenLockSystemAbility::SendScreenLockEvent(const std::string &event, int 
         SetScreenlocked(true);
         DisplayManager::GetInstance().NotifyDisplayEvent(DisplayEvent::KEYGUARD_DRAWN);
     } else if (event == LOCK_SCREEN_RESULT) {
-        if (stateResult == LOCKSCREEN_SUCC) {
-            SetScreenlocked(true);
-            DisplayManager::GetInstance().NotifyDisplayEvent(DisplayEvent::KEYGUARD_DRAWN);
-        } else if (stateResult == LOCKSCREEN_FAIL || stateResult == LOCKSCREEN_CANCEL) {
-            SetScreenlocked(false);
-        }
-        lock_.lock();
-        if (lockVecListeners_.size()) {
-            auto callback = [=]() {
-                for (size_t i = 0; i < lockVecListeners_.size(); i++) {
-                    std::string type = "";
-                    lockVecListeners_[i]->OnCallBack(type, stateResult);
-                }
-                lockVecListeners_.clear();
-            };
-            serviceHandler_->PostTask(callback, INTERVAL_ZERO);
-        }
-        lock_.unlock();
+        LockScreentEvent(stateResult);
     }
     return true;
 }
@@ -777,8 +760,30 @@ bool ScreenLockSystemAbility::CheckAppInForeground(int32_t tokenId)
     }
     auto elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
     SCLOCK_HILOGI(" TopelementName:%{public}s, elementName.GetBundleName:%{public}s",
-     elementName.GetBundleName().c_str(), bundleName.c_str());
+        elementName.GetBundleName().c_str(), bundleName.c_str());
     return elementName.GetBundleName() == bundleName;
+}
+
+void ScreenLockSystemAbility::LockScreentEvent(int stateResult)
+{
+    if (stateResult == LOCKSCREEN_SUCC) {
+        SetScreenlocked(true);
+        DisplayManager::GetInstance().NotifyDisplayEvent(DisplayEvent::KEYGUARD_DRAWN);
+    } else if (stateResult == LOCKSCREEN_FAIL || stateResult == LOCKSCREEN_CANCEL) {
+        SetScreenlocked(false);
+    }
+    lock_.lock();
+    if (lockVecListeners_.size()) {
+        auto callback = [=]() {
+            for (size_t i = 0; i < lockVecListeners_.size(); i++) {
+                std::string type;
+                lockVecListeners_[i]->OnCallBack(type, stateResult);
+            }
+            lockVecListeners_.clear();
+        };
+        serviceHandler_->PostTask(callback, INTERVAL_ZERO);
+    }
+    lock_.unlock();
 }
 } // namespace ScreenLock
 } // namespace OHOS

@@ -173,6 +173,7 @@ private:
     int32_t Init();
     void InitServiceHandler();
     static bool CheckAppInForeground(int32_t tokenId);
+    void LockScreentEvent(int stateResult);
 
     ServiceRunningState state_;
     static std::mutex instanceLock_;
