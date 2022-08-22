@@ -444,10 +444,10 @@ void ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityInte
         SCLOCK_HILOGE("ScreenLockSystemAbility::RequestLock calling app is null");
         return ;
     }
-    // if (bundleName != BUNDLE_NAME) {
-    //     SCLOCK_HILOGE("ScreenLockSystemAbility::RequestLock calling app is not Screenlock APP");
-    //     return ;
-    // }
+    if (bundleName != BUNDLE_NAME) {
+        SCLOCK_HILOGE("ScreenLockSystemAbility::RequestLock calling app is not Screenlock APP");
+        return ;
+    }
 
     lockVecListeners_.push_back(listener);
     SCLOCK_HILOGI("ScreenLockSystemAbility RequestLock listener= %{public}p", listener.GetRefPtr());
