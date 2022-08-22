@@ -132,6 +132,7 @@ public:
     bool IsScreenLocked() override;
     bool GetSecure() override;
     void RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
+    void RequestLock(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
     bool On(const sptr<ScreenLockSystemAbilityInterface> &listener, const std::string &type) override;
     bool Off(const std::string &type) override;
     bool SendScreenLockEvent(const std::string &event, int param) override;
@@ -180,6 +181,7 @@ private:
     sptr<Rosen::IDisplayPowerEventListener> displayPowerEventListener_;
     std::map<std::string, sptr<ScreenLockSystemAbilityInterface>> registeredListeners_;
     std::vector<sptr<ScreenLockSystemAbilityInterface>> unlockVecListeners_;
+    std::vector<sptr<ScreenLockSystemAbilityInterface>> lockVecListeners_;
     StateValue stateValue_;
     std::mutex listenerMapMutex_;
     std::mutex lock_;
