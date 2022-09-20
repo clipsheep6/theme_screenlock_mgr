@@ -52,6 +52,8 @@ using namespace OHOS::Telephony;
 REGISTER_SYSTEM_ABILITY_BY_ID(ScreenLockSystemAbility, SCREENLOCK_SERVICE_ID, true);
 const std::int64_t INIT_INTERVAL = 5000L;
 const std::int64_t INTERVAL_ZERO = 0L;
+const std::int64_t ONSYSTEMREADY_INTERVAL = 1000L;
+constexpr int MAX_RETRY_TIMES = 20;
 std::mutex ScreenLockSystemAbility::instanceLock_;
 sptr<ScreenLockSystemAbility> ScreenLockSystemAbility::instance_;
 std::shared_ptr<AppExecFwk::EventHandler> ScreenLockSystemAbility::serviceHandler_;
@@ -240,25 +242,35 @@ void ScreenLockSystemAbility::OnBeginScreenOn()
     }
 }
 
+void ScreenLockSystemAbility::OnSystemReadyCallBack()
+{
+    static int times = 0;
+    SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReadyCallBack started.times:%{public}d", times);
+    if (times > MAX_RETRY_TIMES) {
+        times = 0;
+        return;
+    }
+    std::string type = SYSTEM_READY;
+    auto iter = registeredListeners_.find(type);
+    if (iter != registeredListeners_.end()) {
+        SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
+        iter->second->OnCallBack(type);
+        SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started2., times = %{public}d", times);
+        times = 0;
+        return;
+    }
+    times++;
+    SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., times = %{public}d", times);
+    auto callback = [this]() { OnSystemReadyCallBack(); };
+    serviceHandler_->PostTask(callback, ONSYSTEMREADY_INTERVAL);
+}
+
 void ScreenLockSystemAbility::OnSystemReady()
 {
-    SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started.");
     std::string type = SYSTEM_READY;
-    bool isExitFlag = false;
-    int tryTime = 20;
-    int minTryTime = 0;
-    while (!isExitFlag && (tryTime > minTryTime)) {
-        auto iter = registeredListeners_.find(type);
-        if (iter != registeredListeners_.end()) {
-            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
-            iter->second->OnCallBack(type);
-            isExitFlag = true;
-        } else {
-            SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady type not found., flag_ = %{public}d", flag_);
-            sleep(1);
-        }
-        --tryTime;
-    }
+    SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started.");
+    auto callback = [this]() { OnSystemReadyCallBack(); };
+    serviceHandler_->PostTask(callback, INTERVAL_ZERO);
 }
 
 void ScreenLockSystemAbility::OnEndScreenOn()
