@@ -195,9 +195,14 @@ void ScreenLockSystemAbility::ScreenLockDisplayPowerEventListener::OnDisplayPowe
 void ScreenLockSystemAbility::OnBeginScreenOff()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginScreenOff started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetScreenState(static_cast<int>(ScreenState::SCREEN_STATE_BEGIN_OFF));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginScreenOff started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(BEGIN_SCREEN_OFF);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -207,9 +212,14 @@ void ScreenLockSystemAbility::OnBeginScreenOff()
 void ScreenLockSystemAbility::OnEndScreenOff()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnEndScreenOff started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetScreenState(static_cast<int>(ScreenState::SCREEN_STATE_END_OFF));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnEndScreenOff started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(END_SCREEN_OFF);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -219,9 +229,14 @@ void ScreenLockSystemAbility::OnEndScreenOff()
 void ScreenLockSystemAbility::OnBeginScreenOn()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginScreenOn started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetScreenState(static_cast<int>(ScreenState::SCREEN_STATE_BEGIN_ON));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginScreenOn started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(BEGIN_SCREEN_ON);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -237,6 +252,7 @@ void ScreenLockSystemAbility::OnSystemReady()
     while (!isExitFlag && (tryTime > minTryTime)) {
         if (systemEventListener_ != nullptr) {
             SCLOCK_HILOGI("ScreenLockSystemAbility OnSystemReady started1.");
+            std::lock_guard<std::mutex> lck(listenerMutex_);
             SystemEvent systemEvent(SYSTEM_READY);
             systemEventListener_->OnCallBack(systemEvent);
             isExitFlag = true;
@@ -251,9 +267,14 @@ void ScreenLockSystemAbility::OnSystemReady()
 void ScreenLockSystemAbility::OnEndScreenOn()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnEndScreenOn started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetScreenState(static_cast<int>(ScreenState::SCREEN_STATE_END_ON));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnEndScreenOn started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(END_SCREEN_ON);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -263,9 +284,14 @@ void ScreenLockSystemAbility::OnEndScreenOn()
 void ScreenLockSystemAbility::OnBeginWakeUp()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginWakeUp started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetInteractiveState(static_cast<int>(InteractiveState::INTERACTIVE_STATE_BEGIN_WAKEUP));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginWakeUp started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(BEGIN_WAKEUP);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -276,8 +302,13 @@ void ScreenLockSystemAbility::OnEndWakeUp()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnEndWakeUp started.");
     stateValue_.SetInteractiveState(static_cast<int>(InteractiveState::INTERACTIVE_STATE_END_WAKEUP));
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnEndWakeUp started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(END_WAKEUP);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -287,10 +318,15 @@ void ScreenLockSystemAbility::OnEndWakeUp()
 void ScreenLockSystemAbility::OnBeginSleep(const int why)
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginSleep started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetOffReason(why);
     stateValue_.SetInteractiveState(static_cast<int>(InteractiveState::INTERACTIVE_STATE_BEGIN_SLEEP));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnBeginSleep started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(BEGIN_SLEEP, std::to_string(why));
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -300,9 +336,14 @@ void ScreenLockSystemAbility::OnBeginSleep(const int why)
 void ScreenLockSystemAbility::OnEndSleep(const int why, const int isTriggered)
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnEndSleep started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetInteractiveState(static_cast<int>(InteractiveState::INTERACTIVE_STATE_END_SLEEP));
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnEndSleep started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(END_SLEEP, std::to_string(why));
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -318,10 +359,15 @@ void ScreenLockSystemAbility::OnChangeUser(const int newUserId)
         SCLOCK_HILOGI("ScreenLockSystemAbility newUserId invalid.");
         return;
     }
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetCurrentUser(newUserId);
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnChangeUser OnCallBack. newUserId %{public}d", newUserId);
         SystemEvent systemEvent(CHANGE_USER, std::to_string(newUserId));
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         systemEventListener_->OnCallBack(systemEvent);
     };
     serviceHandler_->PostTask(callback, INTERVAL_ZERO);
@@ -330,9 +376,14 @@ void ScreenLockSystemAbility::OnChangeUser(const int newUserId)
 void ScreenLockSystemAbility::OnScreenlockEnabled(bool enabled)
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnScreenlockEnabled started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     stateValue_.SetScreenlockEnabled(enabled);
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility iter exist.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(SCREENLOCK_ENABLED, std::to_string(enabled));
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -342,8 +393,13 @@ void ScreenLockSystemAbility::OnScreenlockEnabled(bool enabled)
 void ScreenLockSystemAbility::OnExitAnimation()
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility OnExitAnimation started.");
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     auto callback = [=]() {
         SCLOCK_HILOGI("ScreenLockSystemAbility OnExitAnimation started1.");
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(EXIT_ANIMATION);
         systemEventListener_->OnCallBack(systemEvent);
     };
@@ -366,11 +422,16 @@ void ScreenLockSystemAbility::RequestUnlock(const sptr<ScreenLockSystemAbilityIn
         SCLOCK_HILOGI("ScreenLockSystemAbility RequestUnlock  Unfocused.");
         return;
     }
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return;
+    }
     unlockVecListeners_.push_back(listener);
     SCLOCK_HILOGI("ScreenLockSystemAbility RequestUnlock listener= %{public}p", listener.GetRefPtr());
     auto callback = [=]() {
         StartAsyncTrace(
             HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestUnlock begin callback", HITRACE_UNLOCKSCREEN);
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(UNLOCKSCREEN);
         systemEventListener_->OnCallBack(systemEvent);
         FinishAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestUnlock end callback", HITRACE_UNLOCKSCREEN);
@@ -393,6 +454,10 @@ int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityI
         return -1;
     }
 
+    if (systemEventListener_ == nullptr) {
+        SCLOCK_HILOGE("systemEventListener_ is nullptr.");
+        return -1;
+    }
     lock_.lock();
     lockVecListeners_.push_back(listener);
     lock_.unlock();
@@ -400,6 +465,7 @@ int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityI
     SCLOCK_HILOGI("ScreenLockSystemAbility RequestLock listener= %{public}p", listener.GetRefPtr());
     auto callback = [=]() {
         StartAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestLock begin callback", HITRACE_LOCKSCREEN);
+        std::lock_guard<std::mutex> lck(listenerMutex_);
         SystemEvent systemEvent(LOCKSCREEN);
         systemEventListener_->OnCallBack(systemEvent);
         FinishAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestLock end callback", HITRACE_LOCKSCREEN);
@@ -465,7 +531,7 @@ bool ScreenLockSystemAbility::OnSystemEvent(const sptr<ScreenLockSystemAbilityIn
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(listenerMapMutex_);
+    std::lock_guard<std::mutex> lck(listenerMutex_);
     systemEventListener_ = listener;
     SCLOCK_HILOGI("ScreenLockSystemAbility::OnSystemEvent end.");
     return true;
@@ -681,7 +747,7 @@ std::string ScreenLockSystemAbility::GetScreenlockParameter(const std::string &k
     std::string enabledStatus;
     auto errNo = GetParameter(key.c_str(), "", value, CONFIG_LEN);
     if (errNo > HANDLE_OK) {
-        SCLOCK_HILOGD("GetParameter success, value = %{public}s.", value);
+        SCLOCK_HILOGD("GetParameter success, value = %{public}.5s.", value);
         return value;
     }
     SCLOCK_HILOGE("GetParameter failed, errNo = %{public}d.", errNo);
