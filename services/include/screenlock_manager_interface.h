@@ -33,9 +33,6 @@ public:
     virtual int32_t RequestLock(const sptr<ScreenLockSystemAbilityInterface> &listener) = 0;
     virtual bool OnSystemEvent(const sptr<ScreenLockSystemAbilityInterface> &listener) = 0;
     virtual bool SendScreenLockEvent(const std::string &event, int param) = 0;
-    virtual bool Test_SetScreenLocked(const bool isScreenlocked) = 0;
-    virtual bool Test_RuntimeNotify(const std::string &event, int param) = 0;
-    virtual int Test_GetRuntimeState(const std::string &event) = 0;
 };
 
 enum {

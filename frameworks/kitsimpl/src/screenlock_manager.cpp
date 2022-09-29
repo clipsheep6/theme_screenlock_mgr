@@ -115,55 +115,6 @@ int32_t ScreenLockManager::RequestLock(const sptr<ScreenLockSystemAbilityInterfa
     return screenlockManagerProxy_->RequestLock(listener);
 }
 
-bool ScreenLockManager::Test_SetScreenLocked(bool isScreenlocked)
-{
-    bool flag = false;
-    if (screenlockManagerProxy_ == nullptr) {
-        SCLOCK_HILOGW("Redo GetScreenLockManagerProxy");
-        screenlockManagerProxy_ = GetScreenLockManagerProxy();
-    }
-    if (screenlockManagerProxy_ == nullptr) {
-        SCLOCK_HILOGE("ScreenLockManager::Test_SetScreenLocked quit because redoing GetScreenLockManagerProxy failed.");
-        return false;
-    }
-    SCLOCK_HILOGD("ScreenLockManager::Test_SetScreenLocked succeeded.");
-    flag = screenlockManagerProxy_->Test_SetScreenLocked(isScreenlocked);
-    return flag;
-}
-
-bool ScreenLockManager::Test_RuntimeNotify(const std::string &event, int param)
-{
-    bool flag = false;
-    if (screenlockManagerProxy_ == nullptr) {
-        SCLOCK_HILOGW("Redo GetScreenLockManagerProxy");
-        screenlockManagerProxy_ = GetScreenLockManagerProxy();
-    }
-    if (screenlockManagerProxy_ == nullptr) {
-        SCLOCK_HILOGE("ScreenLockManager::Test_RuntimeNotify quit because redoing GetScreenLockManagerProxy failed.");
-        return false;
-    }
-    SCLOCK_HILOGD("ScreenLockManager::Test_RuntimeNotify succeeded.  event=%{public}s", event.c_str());
-    SCLOCK_HILOGD("ScreenLockManager::Test_RuntimeNotify succeeded.  param=%{public}d", param);
-    flag = screenlockManagerProxy_->Test_RuntimeNotify(event, param);
-    return flag;
-}
-
-int ScreenLockManager::Test_GetRuntimeState(const std::string &event)
-{
-    int flag = -100;
-    if (screenlockManagerProxy_ == nullptr) {
-        SCLOCK_HILOGW("Redo GetScreenLockManagerProxy");
-        screenlockManagerProxy_ = GetScreenLockManagerProxy();
-    }
-    if (screenlockManagerProxy_ == nullptr) {
-        SCLOCK_HILOGE("ScreenLockManager::Test_GetRuntimeState quit because redoing GetScreenLockManagerProxy failed.");
-        return false;
-    }
-    SCLOCK_HILOGD("ScreenLockManager::Test_GetRuntimeState succeeded.  event=%{public}s", event.c_str());
-    flag = screenlockManagerProxy_->Test_GetRuntimeState(event);
-    return flag;
-}
-
 sptr<ScreenLockManagerInterface> ScreenLockManager::GetScreenLockManagerProxy()
 {
     sptr<ISystemAbilityManager> systemAbilityManager =
