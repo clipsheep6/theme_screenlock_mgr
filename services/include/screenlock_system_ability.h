@@ -131,10 +131,10 @@ public:
     static sptr<ScreenLockSystemAbility> GetInstance();
     bool IsScreenLocked() override;
     bool GetSecure() override;
-    void RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
+    int32_t RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
     int32_t RequestLock(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
-    bool OnSystemEvent(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
-    bool SendScreenLockEvent(const std::string &event, int param) override;
+    int32_t OnSystemEvent(const sptr<ScreenLockSystemAbilityInterface> &listener) override;
+    int32_t SendScreenLockEvent(const std::string &event, int param) override;
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void SetScreenlocked(bool isScreenlocked);
     StateValue &GetState()
@@ -169,20 +169,22 @@ private:
     int32_t Init();
     void InitServiceHandler();
     static bool IsAppInForeground(int32_t tokenId);
-    void LockScreentEvent(int stateResult);
+    void LockScreenEvent(int stateResult);
+    void UnlockScreenEvent(int stateResult);
     std::string GetScreenlockParameter(const std::string &key) const;
     bool IsWhiteListApp(int32_t callingTokenId, const std::string &key);
+    void SystemEventCallBack(const SystemEvent &systemEvent, TraceTaskId traceTaskId = HITRACE_BUTT);
 
     ServiceRunningState state_;
     static std::mutex instanceLock_;
     static sptr<ScreenLockSystemAbility> instance_;
     static std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     sptr<Rosen::IDisplayPowerEventListener> displayPowerEventListener_;
+    std::mutex listenerMutex_;
     sptr<ScreenLockSystemAbilityInterface> systemEventListener_;
     std::vector<sptr<ScreenLockSystemAbilityInterface>> unlockVecListeners_;
     std::vector<sptr<ScreenLockSystemAbilityInterface>> lockVecListeners_;
     StateValue stateValue_;
-    std::mutex listenerMapMutex_;
     std::mutex lock_;
     const int32_t startTime_ = 1900;
     const int32_t extraMonth_ = 1;

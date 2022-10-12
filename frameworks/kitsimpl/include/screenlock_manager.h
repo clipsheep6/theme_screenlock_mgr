@@ -40,16 +40,18 @@ public:
     static sptr<ScreenLockManager> GetInstance();
     bool IsScreenLocked();
     bool GetSecure();
-    void RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener);
+    int32_t RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener);
     int32_t RequestLock(const sptr<ScreenLockSystemAbilityInterface> &listener);
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
+    sptr<ScreenLockManagerInterface> GetProxy();
 
 private:
     static sptr<ScreenLockManagerInterface> GetScreenLockManagerProxy();
     static std::mutex instanceLock_;
     static sptr<ScreenLockManager> instance_;
-    static sptr<ScreenLockManagerInterface> screenlockManagerProxy_;
     static sptr<ScreenLockSaDeathRecipient> deathRecipient_;
+    std::mutex managerProxyLock_;
+    sptr<ScreenLockManagerInterface> screenlockManagerProxy_;
 };
 } // namespace ScreenLock
 } // namespace OHOS
