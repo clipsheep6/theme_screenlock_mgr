@@ -95,28 +95,6 @@ declare namespace screenLock {
    */
   function sendScreenLockEvent(event: string, parameter: number, callback: AsyncCallback<boolean>): void;
   function sendScreenLockEvent(event: string, parameter: number): Promise<boolean>;
-
-
-  /**
-   * api for unit test
-   * @since 7
-   */
-  function test_setScreenLocked(isScreenlocked: boolean, callback: AsyncCallback<boolean>): void;
-  function test_setScreenLocked(isScreenlocked: boolean): Promise<boolean>;
-
-  /**
-   * api for unit test
-   * @since 7
-   */
-  function test_runtimeNotify(event: string, parameter: number, callback: AsyncCallback<boolean>): void;
-  function test_runtimeNotify(event: string, parameter: number): Promise<boolean>;
-
-  /**
-   * api for unit test
-   * @since 7
-   */
-  function test_getRuntimeState(event: string, callback: AsyncCallback<number>): void;
-  function test_getRuntimeState(event: string): Promise<number>;
 }
 
 export default screenLock;
