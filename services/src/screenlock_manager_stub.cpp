@@ -25,124 +25,124 @@
 namespace OHOS {
 namespace ScreenLock {
 using namespace OHOS::HiviewDFX;
+ScreenLockManagerStub::ScreenLockManagerStub()
+{
+    memberFuncMap_[static_cast<uint32_t>(IS_SCREEN_LOCKED)] = &ScreenLockManagerStub::OnIsScreenLocked;
+    memberFuncMap_[static_cast<uint32_t>(IS_SECURE_MODE)] = &ScreenLockManagerStub::OnGetSecure;
+    memberFuncMap_[static_cast<uint32_t>(REQUEST_UNLOCK)] = &ScreenLockManagerStub::OnRequestUnlock;
+    memberFuncMap_[static_cast<uint32_t>(REQUEST_LOCK)] = &ScreenLockManagerStub::OnRequestLock;
+    memberFuncMap_[static_cast<uint32_t>(SEND_SCREENLOCK_EVENT)] = &ScreenLockManagerStub::OnSendScreenLockEvent;
+    memberFuncMap_[static_cast<uint32_t>(ONSYSTEMEVENT)] = &ScreenLockManagerStub::OnScreenLockOn;
+}
 
-int32_t ScreenLockManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    MessageOption &option)
+int32_t ScreenLockManagerStub::OnRemoteRequest(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     SCLOCK_HILOGD("OnRemoteRequest started, code = %{public}d", code);
-    int32_t result = -1;
     auto descriptorToken = data.ReadInterfaceToken();
     if (descriptorToken != GetDescriptor()) {
         SCLOCK_HILOGE("Remote descriptor not the same as local descriptor.");
         return E_SCREENLOCK_TRANSACT_ERROR;
     }
-    switch (code) {
-        case IS_SCREEN_LOCKED:
-            return OnIsScreenLocked(data, reply);
-        case IS_SECURE_MODE:
-            return OnGetSecure(data, reply);
-        case REQUEST_UNLOCK:
-            OnRequestUnlock(data, reply);
-            return 0;
-        case REQUEST_LOCK:
-            OnRequestLock(data, reply);
-            return 0;
-        case SEND_SCREENLOCK_EVENT:
-            result = OnSendScreenLockEvent(data, reply);
-            break;
-        case ONSYSTEMEVENT:
-            result = OnScreenLockOn(data, reply);
-            break;
-        default:
-            SCLOCK_HILOGE("Default value received, check needed.");
-            return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    auto itFunc = memberFuncMap_.find(code);
+    if (itFunc != memberFuncMap_.end()) {
+        auto memberFunc = itFunc->second;
+        if (memberFunc != nullptr) {
+            return (this->*memberFunc)(data, reply);
+        }
     }
-    return result;
+    int ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    SCLOCK_HILOGI("end##ret = %{public}d", ret);
+    return ret;
 }
 
-bool ScreenLockManagerStub::OnIsScreenLocked(Parcel &data, Parcel &reply)
+int32_t ScreenLockManagerStub::OnIsScreenLocked(MessageParcel &data, MessageParcel &reply)
 {
     bool result = IsScreenLocked();
+    SCLOCK_HILOGD("isLocked is %{public}d", result);
     if (!reply.WriteBool(result)) {
         SCLOCK_HILOGE("WriteBool failed");
-        return false;
+        return ERR_INVALID_VALUE;
     }
-    return true;
+    SCLOCK_HILOGI("end.");
+    return ERR_OK;
 }
 
-bool ScreenLockManagerStub::OnGetSecure(Parcel &data, Parcel &reply)
+int32_t ScreenLockManagerStub::OnGetSecure(MessageParcel &data, MessageParcel &reply)
 {
     bool result = GetSecure();
+    SCLOCK_HILOGD("isSecure is %{public}d", result);
     if (!reply.WriteBool(result)) {
         SCLOCK_HILOGE("WriteBool failed");
-        return false;
+        return ERR_INVALID_VALUE;
     }
-    return true;
+    SCLOCK_HILOGI("end.");
+    return ERR_OK;
 }
 
-void ScreenLockManagerStub::OnRequestUnlock(MessageParcel &data, MessageParcel &reply)
+int32_t ScreenLockManagerStub::OnRequestUnlock(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remote = data.ReadRemoteObject();
     SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock  addr=%{public}p", remote.GetRefPtr());
     if (remote == nullptr) {
-        SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock remote is nullptr");
-        reply.WriteInt32(E_SCREENLOCK_NULLPTR);
-        return;
+        SCLOCK_HILOGE("ScreenLockManagerStub::OnRequestUnlock remote is nullptr");
+        return ERR_INVALID_VALUE;
     }
     sptr<ScreenLockSystemAbilityInterface> listener = iface_cast<ScreenLockSystemAbilityInterface>(remote);
     SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock addr=%{public}p", listener.GetRefPtr());
     if (listener.GetRefPtr() == nullptr) {
-        SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock listener is null");
-        reply.WriteInt32(E_SCREENLOCK_NULLPTR);
-        return;
+        SCLOCK_HILOGE("ScreenLockManagerStub::OnRequestUnlock listener is null");
+        return ERR_INVALID_VALUE;
     }
     int32_t status = RequestUnlock(listener);
-    reply.WriteInt32(status);
+    if (!reply.WriteInt32(status)) {
+        SCLOCK_HILOGE("WriteInt32 failed");
+        return ERR_INVALID_VALUE;
+    }
+    SCLOCK_HILOGI("end.");
+    return ERR_OK;
 }
 
-void ScreenLockManagerStub::OnRequestLock(MessageParcel &data, MessageParcel &reply)
+int32_t ScreenLockManagerStub::OnRequestLock(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remote = data.ReadRemoteObject();
     if (remote == nullptr) {
-        SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestLock remote is nullptr");
-        reply.WriteInt32(E_SCREENLOCK_NULLPTR);
-        return;
+        SCLOCK_HILOGE("ScreenLockManagerStub::OnRequestLock remote is nullptr");
+        return ERR_INVALID_VALUE;
     }
     sptr<ScreenLockSystemAbilityInterface> listener = iface_cast<ScreenLockSystemAbilityInterface>(remote);
     if (listener.GetRefPtr() == nullptr) {
         SCLOCK_HILOGE("ScreenLockManagerStub::OnRequestLock listener is null");
-        reply.WriteInt32(E_SCREENLOCK_NULLPTR);
-        return;
+        return ERR_INVALID_VALUE;
     }
     int32_t status = RequestLock(listener);
-    reply.WriteInt32(status);
+    if (!reply.WriteInt32(status)) {
+        SCLOCK_HILOGE("WriteInt32 failed");
+        return ERR_INVALID_VALUE;
+    }
+    SCLOCK_HILOGI("end.");
+    return ERR_OK;
 }
 
 int32_t ScreenLockManagerStub::OnScreenLockOn(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remote = data.ReadRemoteObject();
     if (remote == nullptr) {
-        SCLOCK_HILOGD("ScreenLockManagerStub::OnScreenLockOn remote is nullptr");
-        if (!reply.WriteInt32(E_SCREENLOCK_NULLPTR)) {
-            return -1;
-        }
-        return 0;
+        SCLOCK_HILOGE("ScreenLockManagerStub::OnScreenLockOn remote is nullptr");
+        return ERR_INVALID_VALUE;
     }
     sptr<ScreenLockSystemAbilityInterface> listener = iface_cast<ScreenLockSystemAbilityInterface>(remote);
     if (listener.GetRefPtr() == nullptr) {
-        SCLOCK_HILOGD("ScreenLockManagerStub::OnScreenLockOn listener is null");
-        if (!reply.WriteInt32(E_SCREENLOCK_NULLPTR)) {
-            return -1;
-        }
-        return 0;
+        SCLOCK_HILOGE("ScreenLockManagerStub::OnScreenLockOn listener is null");
+        return ERR_INVALID_VALUE;
     }
     int32_t ret = OnSystemEvent(listener);
     if (!reply.WriteInt32(ret)) {
-        SCLOCK_HILOGD("ScreenLockManagerStub::OnScreenLockOn 4444");
-        return -1;
+        SCLOCK_HILOGE("WriteInt32 failed");
+        return ERR_INVALID_VALUE;
     }
-    SCLOCK_HILOGD("ScreenLockManagerStub::OnScreenLockOn out");
-    return ret;
+    SCLOCK_HILOGI("end.");
+    return ERR_OK;
 }
 
 int32_t ScreenLockManagerStub::OnSendScreenLockEvent(MessageParcel &data, MessageParcel &reply)
@@ -152,8 +152,12 @@ int32_t ScreenLockManagerStub::OnSendScreenLockEvent(MessageParcel &data, Messag
     SCLOCK_HILOGD("event=%{public}s ", event.c_str());
     SCLOCK_HILOGD("param=%{public}d ", param);
     int32_t retCode = SendScreenLockEvent(event, param);
-    reply.WriteInt32(retCode);
-    return retCode;
+    if (!reply.WriteInt32(retCode)) {
+        SCLOCK_HILOGE("WriteInt32 failed");
+        return ERR_INVALID_VALUE;
+    }
+    SCLOCK_HILOGI("end.");
+    return ERR_OK;
 }
 } // namespace ScreenLock
 } // namespace OHOS

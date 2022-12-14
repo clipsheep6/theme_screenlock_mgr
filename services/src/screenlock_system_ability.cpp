@@ -39,9 +39,9 @@
 #include "screenlock_get_info_callback.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 #include "user_idm_client.h"
 #include "xcollie/watchdog.h"
-#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace ScreenLock {
