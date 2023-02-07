@@ -150,8 +150,14 @@ int32_t ScreenLockManagerProxy::SendScreenLockEvent(const std::string &event, in
     MessageOption option;
     data.WriteInterfaceToken(GetDescriptor());
     SCLOCK_HILOGD("ScreenLockManagerProxy SendScreenLockEvent started.");
-    data.WriteString(event);
-    data.WriteInt32(param);
+    if (!data.WriteString(event)) {
+        SCLOCK_HILOGE("write parcel failed.");
+        return E_SCREENLOCK_WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteInt32(param)) {
+        SCLOCK_HILOGE("write parcel failed.");
+        return E_SCREENLOCK_WRITE_PARCEL_ERROR;
+    }
     int32_t ret = Remote()->SendRequest(SEND_SCREENLOCK_EVENT, data, reply, option);
     if (ret != ERR_NONE) {
         SCLOCK_HILOGE("ScreenLockManagerProxy SendScreenLockEvent, ret = %{public}d", ret);

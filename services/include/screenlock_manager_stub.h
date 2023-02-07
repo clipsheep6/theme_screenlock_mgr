@@ -17,6 +17,7 @@
 #define SERVICES_INCLUDE_SCLOCK_SERVICE_STUB_H
 
 #include <cstdint>
+#include <map>
 
 #include "iremote_stub.h"
 #include "screenlock_manager_interface.h"
@@ -25,15 +26,20 @@ namespace OHOS {
 namespace ScreenLock {
 class ScreenLockManagerStub : public IRemoteStub<ScreenLockManagerInterface> {
 public:
+    ScreenLockManagerStub();
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    bool OnIsScreenLocked(Parcel &data, Parcel &reply);
-    bool OnGetSecure(Parcel &data, Parcel &reply);
-    void OnRequestUnlock(MessageParcel &data, MessageParcel &reply);
-    void OnRequestLock(MessageParcel &data, MessageParcel &reply);
+    using ScreenLockServiceFunc = int32_t (ScreenLockManagerStub::*)(MessageParcel &data, MessageParcel &reply);
+
+    int32_t OnIsScreenLocked(MessageParcel &data, MessageParcel &reply);
+    int32_t OnGetSecure(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRequestUnlock(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRequestLock(MessageParcel &data, MessageParcel &reply);
     int32_t OnSendScreenLockEvent(MessageParcel &data, MessageParcel &reply);
     int32_t OnScreenLockOn(MessageParcel &data, MessageParcel &reply);
+
+    std::map<uint32_t, ScreenLockServiceFunc> memberFuncMap_;
 };
 } // namespace ScreenLock
 } // namespace OHOS
