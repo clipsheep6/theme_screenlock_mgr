@@ -84,7 +84,7 @@ sptr<ScreenLockSystemAbility> ScreenLockSystemAbility::GetInstance()
         std::lock_guard<std::mutex> autoLock(instanceLock_);
         if (instance_ == nullptr) {
             instance_ = new ScreenLockSystemAbility(SCREENLOCK_SERVICE_ID, true);
-            SCLOCK_HILOGE("ScreenLockSystemAbility instance_ create,addr=%{public}p", instance_.GetRefPtr());
+            SCLOCK_HILOGE("ScreenLockSystemAbility instance_ create");
         }
     }
     return instance_;
@@ -375,7 +375,6 @@ int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityI
     lockVecListeners_.push_back(listener);
     lockListenerMutex_.unlock();
 
-    SCLOCK_HILOGI("ScreenLockSystemAbility RequestLock listener= %{public}p", listener.GetRefPtr());
     SystemEvent systemEvent(LOCKSCREEN);
     SystemEventCallBack(systemEvent, HITRACE_LOCKSCREEN);
     return E_SCREENLOCK_OK;
