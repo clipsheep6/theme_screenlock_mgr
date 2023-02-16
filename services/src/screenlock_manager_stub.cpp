@@ -83,14 +83,13 @@ bool ScreenLockManagerStub::OnGetSecure(Parcel &data, Parcel &reply)
 void ScreenLockManagerStub::OnRequestUnlock(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remote = data.ReadRemoteObject();
-    SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock  addr=%{public}p", remote.GetRefPtr());
+    SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock");
     if (remote == nullptr) {
         SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock remote is nullptr");
         reply.WriteInt32(E_SCREENLOCK_NULLPTR);
         return;
     }
     sptr<ScreenLockSystemAbilityInterface> listener = iface_cast<ScreenLockSystemAbilityInterface>(remote);
-    SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock addr=%{public}p", listener.GetRefPtr());
     if (listener.GetRefPtr() == nullptr) {
         SCLOCK_HILOGD("ScreenLockManagerStub::OnRequestUnlock listener is null");
         reply.WriteInt32(E_SCREENLOCK_NULLPTR);
