@@ -16,7 +16,7 @@
     <process>screenlock_server</process>
     <systemability>
         <name>3704</name>
-        <libpath>libscreenlock_server.z.so</libpath>
+        <libpath>module/libscreenlock_server.z.so</libpath>
         <run-on-create>true</run-on-create>
         <distributed>false</distributed>
         <dump-level>1</dump-level>
