@@ -29,6 +29,7 @@ struct EventListener {
     napi_deferred deferred = nullptr;
     napi_async_work work = nullptr;
     bool callBackResult = false;
+    bool beforeApi9 = true;
 };
 } // namespace ScreenLock
 } // namespace OHOS
