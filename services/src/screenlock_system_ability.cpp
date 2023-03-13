@@ -320,6 +320,11 @@ void ScreenLockSystemAbility::OnExitAnimation()
     SystemEventCallBack(systemEvent);
 }
 
+int32_t ScreenLockSystemAbility::RequestUnlockScreen(const sptr<ScreenLockSystemAbilityInterface> &listener)
+{
+    return RequestUnlock(listener);
+}
+
 int32_t ScreenLockSystemAbility::RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestUnlock begin", HITRACE_UNLOCKSCREEN);
@@ -328,14 +333,6 @@ int32_t ScreenLockSystemAbility::RequestUnlock(const sptr<ScreenLockSystemAbilit
         OnStart();
     }
     SCLOCK_HILOGI("ScreenLockSystemAbility RequestUnlock started.");
-    // check whether the page of app request unlock is the focus page
-    std::lock_guard<std::mutex> guard(lock_);
-    if (!IsAppInForeground(IPCSkeleton::GetCallingTokenID())) {
-        FinishAsyncTrace(
-            HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestUnlock finish by foucus", HITRACE_UNLOCKSCREEN);
-        SCLOCK_HILOGI("ScreenLockSystemAbility RequestUnlock  Unfocused.");
-        return E_SCREENLOCK_NO_PERMISSION;
-    }
     unlockVecListeners_.push_back(listener);
     SystemEvent systemEvent(UNLOCKSCREEN);
     SystemEventCallBack(systemEvent, HITRACE_UNLOCKSCREEN);
@@ -353,7 +350,7 @@ int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityI
         SCLOCK_HILOGE("Calling app is not whitelist app");
         return E_SCREENLOCK_NO_PERMISSION;
     }
-    if (IsScreenLocked()) {
+    if (stateValue_.GetScreenlockedState()) {
         return E_SCREENLOCK_NO_PERMISSION;
     }
     lock_.lock();
@@ -365,7 +362,12 @@ int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityI
     return E_SCREENLOCK_OK;
 }
 
-bool ScreenLockSystemAbility::IsScreenLocked()
+int32_t ScreenLockSystemAbility::IsLocked(bool &isLocked)
+{
+    return IsScreenLocked(isLocked);
+}
+
+int32_t ScreenLockSystemAbility::IsScreenLocked(bool &isLocked)
 {
     if (state_ != ServiceRunningState::STATE_RUNNING) {
         SCLOCK_HILOGI("ScreenLockSystemAbility IsScreenLocked restart.");
@@ -373,9 +375,9 @@ bool ScreenLockSystemAbility::IsScreenLocked()
     }
     SCLOCK_HILOGI("ScreenLockSystemAbility IsScreenLocked started.");
     std::lock_guard<std::mutex> guard(lock_);
-    bool screnLockState = stateValue_.GetScreenlockedState();
-    SCLOCK_HILOGI("IsScreenLocked screnLockState = %{public}d", screnLockState);
-    return screnLockState;
+    isLocked = stateValue_.GetScreenlockedState();
+    SCLOCK_HILOGI("IsScreenLocked IsScreenLocked = %{public}d", isLocked);
+    return E_SCREENLOCK_OK;
 }
 
 bool ScreenLockSystemAbility::GetSecure()
@@ -509,28 +511,6 @@ void ScreenLockSystemAbility::RegisterDumpCommand()
         });
     DumpHelper::GetInstance().RegisterCommand(cmd);
 }
-
-#ifdef OHOS_TEST_FLAG
-bool ScreenLockSystemAbility::IsAppInForeground(uint32_t tokenId)
-{
-    return true;
-}
-#else
-bool ScreenLockSystemAbility::IsAppInForeground(uint32_t tokenId)
-{
-    using namespace OHOS::AAFwk;
-    AppInfo appInfo;
-    auto ret = ScreenLockAppInfo::GetAppInfoByToken(tokenId, appInfo);
-    if (!ret || appInfo.bundleName.empty()) {
-        SCLOCK_HILOGI("get bundle name by token failed");
-        return false;
-    }
-    auto elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
-    SCLOCK_HILOGD(" TopelementName:%{public}s, elementName.GetBundleName:%{public}s",
-        elementName.GetBundleName().c_str(),  appInfo.bundleName.c_str());
-    return elementName.GetBundleName() ==  appInfo.bundleName;
-}
-#endif
 
 void ScreenLockSystemAbility::LockScreenEvent(int stateResult)
 {
