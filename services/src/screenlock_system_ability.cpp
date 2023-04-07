@@ -23,8 +23,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include "common_event_support.h"
 #include "ability_manager_client.h"
-#include "accesstoken_kit.h"
 #include "command.h"
 #include "common_event_manager.h"
 #include "display_manager.h"
@@ -40,7 +40,6 @@
 #include "screenlock_get_info_callback.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
-#include "tokenid_kit.h"
 #include "user_idm_client.h"
 #include "want.h"
 #include "xcollie/watchdog.h"
@@ -51,7 +50,6 @@ using namespace std;
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::Rosen;
 using namespace OHOS::UserIam::UserAuth;
-using namespace OHOS::Security::AccessToken;
 
 REGISTER_SYSTEM_ABILITY_BY_ID(ScreenLockSystemAbility, SCREENLOCK_SERVICE_ID, true);
 const std::int64_t TIME_OUT_MILLISECONDS = 10000L;
@@ -61,7 +59,6 @@ const std::int64_t INTERVAL_ZERO = 0L;
 std::mutex ScreenLockSystemAbility::instanceLock_;
 sptr<ScreenLockSystemAbility> ScreenLockSystemAbility::instance_;
 std::shared_ptr<AppExecFwk::EventHandler> ScreenLockSystemAbility::serviceHandler_;
-
 constexpr const char *THEME_SCREENLOCK_WHITEAPP = "const.theme.screenlockWhiteApp";
 constexpr const char *THEME_SCREENLOCK_APP = "const.theme.screenlockApp";
 constexpr const char *CANCEL_UNLOCK_OPERATION = "The user canceled the unlock operation.";
@@ -331,23 +328,14 @@ void ScreenLockSystemAbility::OnExitAnimation()
     SystemEventCallBack(systemEvent);
 }
 
-void ScreenLockSystemAbility::UnlockScreen(const sptr<ScreenLockSystemAbilityInterface> &listener)
+int32_t ScreenLockSystemAbility::RequestUnlockScreen(const sptr<ScreenLockSystemAbilityInterface> &listener)
 {
-    UnlockInner(listener);
+    return RequestUnlock(listener);
 }
 
-int32_t ScreenLockSystemAbility::Unlock(const sptr<ScreenLockSystemAbilityInterface> &listener)
+int32_t ScreenLockSystemAbility::RequestUnlock(const sptr<ScreenLockSystemAbilityInterface> &listener)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestUnlock begin", HITRACE_UNLOCKSCREEN);
-    if (!IsSystemApp()) {
-        SCLOCK_HILOGE("Calling app is not system app");
-        return E_SCREENLOCK_NOT_SYSTEM_APP;
-    }
-    return UnlockInner(listener);
-}
-
-int32_t ScreenLockSystemAbility::UnlockInner(const sptr<ScreenLockSystemAbilityInterface> &listener)
-{
     if (state_ != ServiceRunningState::STATE_RUNNING) {
         SCLOCK_HILOGI("ScreenLockSystemAbility RequestUnlock restart.");
         OnStart();
@@ -369,7 +357,7 @@ int32_t ScreenLockSystemAbility::UnlockInner(const sptr<ScreenLockSystemAbilityI
     return E_SCREENLOCK_OK;
 }
 
-int32_t ScreenLockSystemAbility::Lock(const sptr<ScreenLockSystemAbilityInterface> &listener)
+int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityInterface> &listener)
 {
     SCLOCK_HILOGI("ScreenLockSystemAbility RequestLock started.");
     if (!IsSystemApp()) {
@@ -394,23 +382,18 @@ int32_t ScreenLockSystemAbility::Lock(const sptr<ScreenLockSystemAbilityInterfac
 
 int32_t ScreenLockSystemAbility::IsLocked(bool &isLocked)
 {
-    if (!IsSystemApp()) {
-        SCLOCK_HILOGE("Calling app is not system app");
-        return E_SCREENLOCK_NOT_SYSTEM_APP;
-    }
-    isLocked = IsScreenLocked();
-    return E_SCREENLOCK_OK;
+    return IsScreenLocked(isLocked);
 }
 
-bool ScreenLockSystemAbility::IsScreenLocked()
+int32_t ScreenLockSystemAbility::IsScreenLocked(bool &isLocked)
 {
     if (state_ != ServiceRunningState::STATE_RUNNING) {
         SCLOCK_HILOGI("IsScreenLocked restart.");
         OnStart();
     }
-    bool isScreenLocked = stateValue_.GetScreenlockedState();
-    SCLOCK_HILOGD("IsScreenLocked = %{public}d", isScreenLocked);
-    return isScreenLocked;
+    isLocked = stateValue_.GetScreenlockedState();
+    SCLOCK_HILOGI("IsScreenLocked = %{public}d", isLocked);
+    return E_SCREENLOCK_OK;
 }
 
 bool ScreenLockSystemAbility::GetSecure()
@@ -450,6 +433,7 @@ int32_t ScreenLockSystemAbility::OnSystemEvent(const sptr<ScreenLockSystemAbilit
         !IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_APP)) {
         return E_SCREENLOCK_NO_PERMISSION;
     }
+
     std::lock_guard<std::mutex> lck(listenerMutex_);
     systemEventListener_ = listener;
     SCLOCK_HILOGI("ScreenLockSystemAbility::OnSystemEvent end.");
@@ -533,6 +517,38 @@ void ScreenLockSystemAbility::RegisterDumpCommand()
     DumpHelper::GetInstance().RegisterCommand(cmd);
 }
 
+#ifdef OHOS_TEST_FLAG
+bool ScreenLockSystemAbility::IsWhiteListApp(uint32_t callingTokenId, const std::string &key)
+{
+    return true;
+}
+#else
+bool ScreenLockSystemAbility::IsWhiteListApp(uint32_t callingTokenId, const std::string &key)
+{
+    std::string whiteListAppId = GetScreenlockParameter(key);
+    if (whiteListAppId.empty()) {
+        SCLOCK_HILOGE("whiteListAppId is null.");
+        return false;
+    }
+    AppInfo appInfo;
+    if (!ScreenLockAppInfo::GetAppInfoByToken(callingTokenId, appInfo)) {
+        SCLOCK_HILOGE("GetAppInfoByToken failed.");
+        return false;
+    }
+    if (appInfo.appId.empty()) {
+        SCLOCK_HILOGE("AppId in appInfo is null.");
+        return false;
+    }
+    if (whiteListAppId != appInfo.appId) {
+        SCLOCK_HILOGE("Calling app is not the app which in the whitelist.");
+        return false;
+    }
+    SCLOCK_HILOGI("CallingAppid=%{public}.5s, whiteListAppId=%{public}.5s",
+                  appInfo.appId.c_str(), whiteListAppId.c_str());
+    return true;
+}
+#endif
+
 void ScreenLockSystemAbility::PublishEvent(const std::string &eventAction)
 {
     AAFwk::Want want;
@@ -564,7 +580,7 @@ void ScreenLockSystemAbility::LockScreenEvent(int stateResult)
         serviceHandler_->PostTask(callback, INTERVAL_ZERO);
     }
     if (stateResult == ScreenChange::SCREEN_SUCC) {
-        PublishEvent("common.event.LOCK_SCREEN");
+        PublishEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
     }
 }
 
@@ -594,7 +610,7 @@ void ScreenLockSystemAbility::UnlockScreenEvent(int stateResult)
         serviceHandler_->PostTask(callback, INTERVAL_ZERO);
     }
     if (stateResult == ScreenChange::SCREEN_SUCC) {
-        PublishEvent("common.event.UNLOCK_SCREEN");
+        PublishEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
     }
 }
 
