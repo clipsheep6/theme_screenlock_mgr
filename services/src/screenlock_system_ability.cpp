@@ -164,7 +164,7 @@ void ScreenLockSystemAbility::InitServiceHandler()
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("ScreenLockSystemAbility");
     serviceHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
     if (HiviewDFX::Watchdog::GetInstance().AddThread("ScreenLockSystemAbility", serviceHandler_,
-        TIME_OUT_MILLISECONDS) != 0) {
+            TIME_OUT_MILLISECONDS) != 0) {
         SCLOCK_HILOGE("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
     SCLOCK_HILOGI("InitServiceHandler succeeded.");
@@ -341,6 +341,14 @@ int32_t ScreenLockSystemAbility::RequestUnlock(const sptr<ScreenLockSystemAbilit
         OnStart();
     }
     SCLOCK_HILOGI("ScreenLockSystemAbility RequestUnlock started.");
+
+    // check whether the page of app request unlock is the focus page
+    if (!IsAppInForeground(IPCSkeleton::GetCallingTokenID())) {
+        FinishAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::RequestUnlock finish by focus",
+            HITRACE_UNLOCKSCREEN);
+        SCLOCK_HILOGE("ScreenLockSystemAbility RequestUnlock  Unfocused.");
+        return E_SCREENLOCK_NO_PERMISSION;
+    }
     unlockListenerMutex_.lock();
     unlockVecListeners_.push_back(listener);
     unlockListenerMutex_.unlock();
@@ -356,12 +364,8 @@ int32_t ScreenLockSystemAbility::RequestLock(const sptr<ScreenLockSystemAbilityI
         SCLOCK_HILOGE("Calling app is not system app");
         return E_SCREENLOCK_NOT_SYSTEM_APP;
     }
-    if (!IsAppInForeground(IPCSkeleton::GetCallingTokenID())) {
-        SCLOCK_HILOGE("Calling app is not Unfocused.");
-        return E_SCREENLOCK_NO_PERMISSION;
-    }
-    if (!IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_WHITEAPP)) {
-        SCLOCK_HILOGE("Calling app is not whitelist app");
+    if (!CheckPermission("ohos.permission.ACCESS_SCREEN_LOCK_INNER") &&
+        !IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_WHITEAPP)) {
         return E_SCREENLOCK_NO_PERMISSION;
     }
     if (stateValue_.GetScreenlockedState()) {
@@ -425,8 +429,8 @@ int32_t ScreenLockSystemAbility::OnSystemEvent(const sptr<ScreenLockSystemAbilit
         SCLOCK_HILOGE("Calling app is not system app");
         return E_SCREENLOCK_NOT_SYSTEM_APP;
     }
-    if (!IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_APP)) {
-        SCLOCK_HILOGE("Calling app is not whitelist app");
+    if (!CheckPermission("ohos.permission.ACCESS_SCREEN_LOCK_INNER") &&
+        !IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_APP)) {
         return E_SCREENLOCK_NO_PERMISSION;
     }
 
@@ -443,8 +447,8 @@ int32_t ScreenLockSystemAbility::SendScreenLockEvent(const std::string &event, i
         SCLOCK_HILOGE("Calling app is not system app");
         return E_SCREENLOCK_NOT_SYSTEM_APP;
     }
-    if (!IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_APP)) {
-        SCLOCK_HILOGE("Calling app is not whitelist app");
+    if (!CheckPermission("ohos.permission.ACCESS_SCREEN_LOCK_INNER") &&
+        !IsWhiteListApp(IPCSkeleton::GetCallingTokenID(), THEME_SCREENLOCK_APP)) {
         return E_SCREENLOCK_NO_PERMISSION;
     }
     SCLOCK_HILOGD("event=%{public}s ,param=%{public}d", event.c_str(), param);
@@ -507,7 +511,7 @@ void ScreenLockSystemAbility::RegisterDumpCommand()
                 .append(" * screenState  \t\t" + temp_screenState + "\t\tscreen on / off status\n")
                 .append(" * offReason  \t\t\t" + std::to_string(offReason) + "\t\tscreen failure reason\n")
                 .append(
-                " * interactiveState \t\t" + std::to_string(interactiveState) + "\t\tscreen interaction status\n");
+                    " * interactiveState \t\t" + std::to_string(interactiveState) + "\t\tscreen interaction status\n");
             return true;
         });
     DumpHelper::GetInstance().RegisterCommand(cmd);
@@ -638,13 +642,96 @@ void ScreenLockSystemAbility::SystemEventCallBack(const SystemEvent &systemEvent
         std::lock_guard<std::mutex> lck(listenerMutex_);
         systemEventListener_->OnCallBack(systemEvent);
         if (traceTaskId != HITRACE_BUTT) {
-            FinishAsyncTrace(
-                HITRACE_TAG_MISC, "ScreenLockSystemAbility::" + systemEvent.eventType_ + "end callback", traceTaskId);
+            FinishAsyncTrace(HITRACE_TAG_MISC, "ScreenLockSystemAbility::" + systemEvent.eventType_ + "end callback",
+                traceTaskId);
         }
     };
     if (serviceHandler_ != nullptr) {
         serviceHandler_->PostTask(callback, INTERVAL_ZERO);
     }
 }
+
+#ifdef OHOS_TEST_FLAG
+bool ScreenLockSystemAbility::IsAppInForeground(uint32_t tokenId)
+{
+    return true;
+}
+
+bool ScreenLockSystemAbility::IsSystemApp()
+{
+    return true;
+}
+
+bool ScreenLockSystemAbility::CheckPermission(const std::string &permissionName)
+{
+    return true;
+}
+
+bool ScreenLockSystemAbility::IsWhiteListApp(uint32_t callingTokenId, const std::string &key)
+{
+    return true;
+}
+#else
+bool ScreenLockSystemAbility::IsAppInForeground(uint32_t tokenId)
+{
+    using namespace OHOS::AAFwk;
+    AppInfo appInfo;
+    auto ret = ScreenLockAppInfo::GetAppInfoByToken(tokenId, appInfo);
+    if (!ret || appInfo.bundleName.empty()) {
+        SCLOCK_HILOGE("get bundle name by token failed");
+        return false;
+    }
+    auto elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
+    SCLOCK_HILOGD(" TopelementName:%{public}s, elementName.GetBundleName:%{public}s",
+        elementName.GetBundleName().c_str(), appInfo.bundleName.c_str());
+    return elementName.GetBundleName() == appInfo.bundleName;
+}
+
+bool ScreenLockSystemAbility::IsSystemApp()
+{
+    return TokenIdKit::IsSystemAppByFullTokenID(IPCSkeleton::GetCallingFullTokenID());
+}
+
+bool ScreenLockSystemAbility::CheckPermission(const std::string &permissionName)
+{
+    AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    auto tokenType = AccessTokenKit::GetTokenTypeFlag(callerToken);
+    if (tokenType != TOKEN_NATIVE && tokenType != TOKEN_SHELL && tokenType != TOKEN_HAP) {
+        SCLOCK_HILOGE("check permission tokenType illegal");
+        return false;
+    }
+    int result = AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
+    if (result != PERMISSION_GRANTED) {
+        SCLOCK_HILOGE("check permission failed.");
+        return false;
+    }
+    return true;
+}
+
+bool ScreenLockSystemAbility::IsWhiteListApp(uint32_t callingTokenId, const std::string &key)
+{
+    std::string whiteListAppId = GetScreenlockParameter(key);
+    if (whiteListAppId.empty()) {
+        SCLOCK_HILOGE("whiteListAppId is null.");
+        return false;
+    }
+    AppInfo appInfo;
+    if (!ScreenLockAppInfo::GetAppInfoByToken(callingTokenId, appInfo)) {
+        SCLOCK_HILOGE("GetAppInfoByToken failed.");
+        return false;
+    }
+    if (appInfo.appId.empty()) {
+        SCLOCK_HILOGE("AppId in appInfo is null.");
+        return false;
+    }
+    if (whiteListAppId != appInfo.appId) {
+        SCLOCK_HILOGE("Calling app is not the app which in the whitelist.");
+        return false;
+    }
+    SCLOCK_HILOGI("CallingAppid=%{public}.5s, whiteListAppId=%{public}.5s", appInfo.appId.c_str(),
+        whiteListAppId.c_str());
+    return true;
+}
+#endif
 } // namespace ScreenLock
 } // namespace OHOS

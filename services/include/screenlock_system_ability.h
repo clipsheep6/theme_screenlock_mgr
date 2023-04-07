@@ -177,6 +177,10 @@ private:
     bool IsWhiteListApp(uint32_t callingTokenId, const std::string &key);
     void SystemEventCallBack(const SystemEvent &systemEvent, TraceTaskId traceTaskId = HITRACE_BUTT);
     void PublishEvent(const std::string &eventAction);
+    bool IsAppInForeground(uint32_t tokenId);
+    bool IsSystemApp();
+    bool CheckPermission(const std::string &permissionName);
+    bool IsWhiteListApp(uint32_t callingTokenId, const std::string &key);
 
     ServiceRunningState state_;
     static std::mutex instanceLock_;
