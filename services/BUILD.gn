@@ -16,7 +16,11 @@ import("../screenlock.gni")
 
 config("screenlock_mgr_service_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [ 
+    "include",
+    "${screenlock_mgr_path}/frameworks/native/include",
+    "${screenlock_mgr_path}/utils/include", 
+  ]
 }
 
 ohos_shared_library("screenlock_server") {
@@ -33,14 +37,10 @@ ohos_shared_library("screenlock_server") {
     "src/screenlock_manager_stub.cpp",
     "src/screenlock_system_ability.cpp",
     "src/screenlock_system_ability_proxy.cpp",
+    "src/screenlock_manager_service.cpp"
   ]
 
   public_configs = [ ":screenlock_mgr_service_config" ]
-
-  include_dirs = [
-    "${screenlock_mgr_path}/frameworks/native/include",
-    "${screenlock_mgr_path}/utils/include",
-  ]
 
   cflags = [
     "-fdata-sections",
@@ -68,6 +68,7 @@ ohos_shared_library("screenlock_server") {
     "safwk:system_ability_fwk",
     "user_auth_framework:userauth_client",
     "window_manager:libdm",
+    "window_manager:libwsutils",
   ]
 
   subsystem_name = "theme"
