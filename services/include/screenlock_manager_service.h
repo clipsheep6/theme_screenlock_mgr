@@ -35,10 +35,10 @@
 
 namespace OHOS::ScreenLock {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
-class StateValueTest {
+class ScreenStateValue {
 public:
-    StateValueTest(){};
-    ~StateValueTest(){};
+    ScreenStateValue(){};
+    ~ScreenStateValue(){};
 
     void Reset();
 
@@ -144,7 +144,7 @@ public:
     void SetScreenlocked(bool isScreenlocked);
     void RegisterDisplayPowerEventListener(int32_t times);
     void RegisterDMS();
-    StateValueTest &GetState()
+    ScreenStateValue &GetState()
     {
         return stateValue_;
     }
@@ -192,7 +192,7 @@ private:
     std::vector<sptr<ScreenLockCallbackInterface>> unlockVecListeners_;
     std::mutex lockListenerMutex_;
     std::vector<sptr<ScreenLockCallbackInterface>> lockVecListeners_;
-    StateValueTest stateValue_;
+    ScreenStateValue stateValue_;
     const int32_t startTime_ = 1900;
     const int32_t extraMonth_ = 1;
     bool flag_ = false;

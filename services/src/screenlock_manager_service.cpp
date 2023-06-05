@@ -51,7 +51,9 @@ using namespace OHOS::HiviewDFX;
 using namespace OHOS::Rosen;
 using namespace OHOS::UserIam::UserAuth;
 using namespace OHOS::Security::AccessToken;
-
+namespace {
+    constexpr HiviewDFX::HiLogLabel LOG_LABEL = { LOG_CORE, 0xD001C00, "SclockKit" };
+}
 
 const std::int64_t TIME_OUT_MILLISECONDS = 10000L;
 const std::int64_t DELAY_TIME = 1000L;
@@ -61,18 +63,19 @@ constexpr int32_t MAX_RETRY_TIMES = 20;
 
 ScreenLockManagerService::ScreenLockManagerService()
 {
-    SCLOCK_HILOGI("ScreenLockManagerTes");
+    SCLOCK_HILOGD("ScreenLockManagerService");
+    state_ = ServiceRunningState::STATE_NOT_START;
     InitServiceHandler();
     RegisterDMS();
     stateValue_.Reset();
-    state_ = ServiceRunningState::STATE_NOT_START;
 }
 
 ScreenLockManagerService::~ScreenLockManagerService()
 {
-    SCLOCK_HILOGI("~ScreenLockManagerService state_  is %{public}d.", static_cast<int>(state_));
-    serviceHandler_ = nullptr;
+    SCLOCK_HILOGD("~ScreenLockManagerService state_  is %{public}d.", static_cast<int>(state_));
     DisplayManager::GetInstance().UnregisterDisplayPowerEventListener(displayPowerEventListener_);
+    displayPowerEventListener_ = nullptr;
+    serviceHandler_ = nullptr;
 }
 
 ScreenLockManagerService& ScreenLockManagerService::GetInstance()
@@ -83,29 +86,32 @@ ScreenLockManagerService& ScreenLockManagerService::GetInstance()
 
 void ScreenLockManagerService::RegisterDMS()
 {
-    SCLOCK_HILOGI("RegisterDMS");
+    SCLOCK_HILOGD("RegisterDMS");
     int times = 0;
     if (displayPowerEventListener_ == nullptr) {
         displayPowerEventListener_ = new ScreenLockManagerService::ScreenLockDisplayPowerEventListener();
     }
     RegisterDisplayPowerEventListener(times);
-    if (flag_) {
-        state_ = ServiceRunningState::STATE_RUNNING;
-        auto callback = [=]() { OnSystemReady(); };
-        serviceHandler_->PostTask(callback, INTERVAL_ZERO);
-    }
 }
 
 void ScreenLockManagerService::RegisterDisplayPowerEventListener(int32_t times)
 {
-    SCLOCK_HILOGI("RegisterDisplayPowerEventListener");
+    SCLOCK_HILOGD("RegisterDisplayPowerEventListener");
+    if (displayPowerEventListener_ == nullptr) {
+        SCLOCK_HILOGE("displayPowerEventListener_ is nullptr");
+        return;
+    }
     times++;
     flag_ = (DisplayManager::GetInstance().RegisterDisplayPowerEventListener(displayPowerEventListener_) ==
              DMError::DM_OK);
     if (flag_ == false && times <= MAX_RETRY_TIMES) {
-        SCLOCK_HILOGE("ScreenLockManagerService RegisterDisplayPowerEventListener failed");
+        SCLOCK_HILOGW("ScreenLockManagerService RegisterDisplayPowerEventListener failed");
         auto callback = [this, times]() { RegisterDisplayPowerEventListener(times); };
         serviceHandler_->PostTask(callback, DELAY_TIME);
+    } else if (flag_) {
+        state_ = ServiceRunningState::STATE_RUNNING;
+        auto callback = [=]() { OnSystemReady(); };
+        serviceHandler_->PostTask(callback, INTERVAL_ZERO);
     }
     SCLOCK_HILOGI("ScreenLockManagerService RegisterDisplayPowerEventListener end, flag_:%{public}d, times:%{public}d",
         flag_, times);
@@ -113,9 +119,9 @@ void ScreenLockManagerService::RegisterDisplayPowerEventListener(int32_t times)
 
 void ScreenLockManagerService::InitServiceHandler()
 {
-    SCLOCK_HILOGI("InitServiceHandler started.");
+    SCLOCK_HILOGD("InitServiceHandler started.");
     if (serviceHandler_ != nullptr) {
-        SCLOCK_HILOGI("InitServiceHandler already init.");
+        SCLOCK_HILOGE("InitServiceHandler already init.");
         return;
     }
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("ScreenLockManager");
@@ -124,14 +130,13 @@ void ScreenLockManagerService::InitServiceHandler()
         TIME_OUT_MILLISECONDS) != 0) {
         SCLOCK_HILOGE("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
-    SCLOCK_HILOGI("InitServiceHandler succeeded.");
 }
 
 void ScreenLockManagerService::ScreenLockDisplayPowerEventListener::OnDisplayPowerEvent(DisplayPowerEvent event,
     EventStatus status)
 {
-    SCLOCK_HILOGI("OnDisplayPowerEvent event=%{public}d", static_cast<int>(event));
-    SCLOCK_HILOGI("OnDisplayPowerEvent status= %{public}d", static_cast<int>(status));
+    SCLOCK_HILOGI("OnDisplayPowerEvent event=%{public}d, status= %{public}d",
+                  static_cast<int>(event), static_cast<int>(status));
     if (status == EventStatus::BEGIN) {
         if (event == DisplayPowerEvent::WAKE_UP) {
             GetInstance().OnBeginWakeUp();
@@ -159,7 +164,7 @@ void ScreenLockManagerService::ScreenLockDisplayPowerEventListener::OnDisplayPow
 
 void ScreenLockManagerService::OnBeginScreenOff()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnBeginScreenOff started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnBeginScreenOff started.");
     stateValue_.SetScreenState(static_cast<int32_t>(ScreenState::SCREEN_STATE_BEGIN_OFF));
     SystemEvent systemEvent(BEGIN_SCREEN_OFF);
     SystemEventCallBack(systemEvent);
@@ -167,7 +172,7 @@ void ScreenLockManagerService::OnBeginScreenOff()
 
 void ScreenLockManagerService::OnEndScreenOff()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnEndScreenOff started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnEndScreenOff started.");
     stateValue_.SetScreenState(static_cast<int32_t>(ScreenState::SCREEN_STATE_END_OFF));
     SystemEvent systemEvent(END_SCREEN_OFF);
     SystemEventCallBack(systemEvent);
@@ -175,7 +180,7 @@ void ScreenLockManagerService::OnEndScreenOff()
 
 void ScreenLockManagerService::OnBeginScreenOn()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnBeginScreenOn started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnBeginScreenOn started.");
     stateValue_.SetScreenState(static_cast<int32_t>(ScreenState::SCREEN_STATE_BEGIN_ON));
     SystemEvent systemEvent(BEGIN_SCREEN_ON);
     SystemEventCallBack(systemEvent);
@@ -183,13 +188,13 @@ void ScreenLockManagerService::OnBeginScreenOn()
 
 void ScreenLockManagerService::OnSystemReady()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnSystemReady started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnSystemReady started.");
     bool isExitFlag = false;
     int tryTime = 20;
     int minTryTime = 0;
     while (!isExitFlag && (tryTime > minTryTime)) {
         if (systemEventListener_ != nullptr) {
-            SCLOCK_HILOGI("ScreenLockManagerService OnSystemReady started1.");
+            SCLOCK_HILOGI("ScreenLockManagerService OnSystemReady success.");
             std::lock_guard<std::mutex> lck(listenerMutex_);
             SystemEvent systemEvent(SYSTEM_READY);
             systemEventListener_->OnCallBack(systemEvent);
@@ -204,7 +209,7 @@ void ScreenLockManagerService::OnSystemReady()
 
 void ScreenLockManagerService::OnEndScreenOn()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnEndScreenOn started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnEndScreenOn started.");
     stateValue_.SetScreenState(static_cast<int32_t>(ScreenState::SCREEN_STATE_END_ON));
     SystemEvent systemEvent(END_SCREEN_ON);
     SystemEventCallBack(systemEvent);
@@ -212,7 +217,7 @@ void ScreenLockManagerService::OnEndScreenOn()
 
 void ScreenLockManagerService::OnBeginWakeUp()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnBeginWakeUp started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnBeginWakeUp started.");
     stateValue_.SetInteractiveState(static_cast<int32_t>(InteractiveState::INTERACTIVE_STATE_BEGIN_WAKEUP));
     SystemEvent systemEvent(BEGIN_WAKEUP);
     SystemEventCallBack(systemEvent);
@@ -220,7 +225,7 @@ void ScreenLockManagerService::OnBeginWakeUp()
 
 void ScreenLockManagerService::OnEndWakeUp()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnEndWakeUp started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnEndWakeUp started.");
     stateValue_.SetInteractiveState(static_cast<int32_t>(InteractiveState::INTERACTIVE_STATE_END_WAKEUP));
     SystemEvent systemEvent(END_WAKEUP);
     SystemEventCallBack(systemEvent);
@@ -228,7 +233,7 @@ void ScreenLockManagerService::OnEndWakeUp()
 
 void ScreenLockManagerService::OnBeginSleep(const int why)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnBeginSleep started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnBeginSleep started.");
     stateValue_.SetOffReason(why);
     stateValue_.SetInteractiveState(static_cast<int32_t>(InteractiveState::INTERACTIVE_STATE_BEGIN_SLEEP));
     SystemEvent systemEvent(BEGIN_SLEEP, std::to_string(why));
@@ -237,7 +242,7 @@ void ScreenLockManagerService::OnBeginSleep(const int why)
 
 void ScreenLockManagerService::OnEndSleep(const int why, const int isTriggered)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnEndSleep started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnEndSleep started.");
     stateValue_.SetInteractiveState(static_cast<int32_t>(InteractiveState::INTERACTIVE_STATE_END_SLEEP));
     SystemEvent systemEvent(END_SLEEP, std::to_string(why));
     SystemEventCallBack(systemEvent);
@@ -252,7 +257,7 @@ void ScreenLockManagerService::OnChangeUser(const int newUserId)
     const int minUserId = 0;
     const int maxUserID = 999999999;
     if (newUserId < minUserId || newUserId >= maxUserID) {
-        SCLOCK_HILOGI("ScreenLockManagerService newUserId invalid.");
+        SCLOCK_HILOGE("ScreenLockManagerService newUserId invalid.");
         return;
     }
     stateValue_.SetCurrentUser(newUserId);
@@ -262,7 +267,7 @@ void ScreenLockManagerService::OnChangeUser(const int newUserId)
 
 void ScreenLockManagerService::OnScreenlockEnabled(bool enabled)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnScreenlockEnabled started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnScreenlockEnabled started.");
     stateValue_.SetScreenlockEnabled(enabled);
     SystemEvent systemEvent(SCREENLOCK_ENABLED, std::to_string(enabled));
     SystemEventCallBack(systemEvent);
@@ -270,7 +275,7 @@ void ScreenLockManagerService::OnScreenlockEnabled(bool enabled)
 
 void ScreenLockManagerService::OnExitAnimation()
 {
-    SCLOCK_HILOGI("ScreenLockManagerService OnExitAnimation started.");
+    SCLOCK_HILOGD("ScreenLockManagerService OnExitAnimation started.");
     SystemEvent systemEvent(EXIT_ANIMATION);
     SystemEventCallBack(systemEvent);
 }
@@ -292,7 +297,7 @@ int32_t ScreenLockManagerService::Unlock(const sptr<ScreenLockCallbackInterface>
 
 int32_t ScreenLockManagerService::UnlockInner(const sptr<ScreenLockCallbackInterface> &listener)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService RequestUnlock started.");
+    SCLOCK_HILOGD("ScreenLockManagerService RequestUnlock started.");
     if (state_ != ServiceRunningState::STATE_RUNNING) {
         SCLOCK_HILOGE("ScreenLockManagerService RequestUnlock error.");
         return -1;
@@ -314,15 +319,16 @@ int32_t ScreenLockManagerService::UnlockInner(const sptr<ScreenLockCallbackInter
 
 int32_t ScreenLockManagerService::Lock(const sptr<ScreenLockCallbackInterface> &listener)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService RequestLock started.");
-    // if (!IsSystemApp()) {
-    //     SCLOCK_HILOGE("Calling app is not system app");
-    //     return E_SCREENLOCK_NOT_SYSTEM_APP;
-    // }
-    // if (!CheckPermission("ohos.permission.ACCESS_SCREEN_LOCK_INNER")) {
-    //     return E_SCREENLOCK_NO_PERMISSION;
-    // }
+    SCLOCK_HILOGD("ScreenLockManagerService RequestLock started.");
+    if (!IsSystemApp()) {
+        SCLOCK_HILOGE("Calling app is not system app");
+        return E_SCREENLOCK_NOT_SYSTEM_APP;
+    }
+    if (!CheckPermission("ohos.permission.ACCESS_SCREEN_LOCK_INNER")) {
+        return E_SCREENLOCK_NO_PERMISSION;
+    }
     if (stateValue_.GetScreenlockedState()) {
+        SCLOCK_HILOGE("The current state is the lock screen state.");
         return E_SCREENLOCK_NO_PERMISSION;
     }
     lockListenerMutex_.lock();
@@ -361,7 +367,7 @@ bool ScreenLockManagerService::GetSecure()
         SCLOCK_HILOGE("GetSecure error.");
         return false;
     }
-    SCLOCK_HILOGI("ScreenLockManagerService GetSecure started.");
+    SCLOCK_HILOGD("ScreenLockManagerService GetSecure started.");
     int callingUid = IPCSkeleton::GetCallingUid();
     SCLOCK_HILOGD("ScreenLockManagerService::GetSecure callingUid=%{public}d", callingUid);
     int userId = 0;
@@ -399,7 +405,7 @@ int32_t ScreenLockManagerService::OnSystemEvent(const sptr<ScreenLockSystemAbili
 
 int32_t ScreenLockManagerService::SendScreenLockEvent(const std::string &event, int param)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService SendScreenLockEvent started.");
+    SCLOCK_HILOGD("ScreenLockManagerService SendScreenLockEvent started.");
     if (!IsSystemApp()) {
         SCLOCK_HILOGE("Calling app is not system app");
         return E_SCREENLOCK_NOT_SYSTEM_APP;
@@ -422,11 +428,11 @@ int32_t ScreenLockManagerService::SendScreenLockEvent(const std::string &event, 
 
 void ScreenLockManagerService::SetScreenlocked(bool isScreenlocked)
 {
-    SCLOCK_HILOGI("ScreenLockManagerService SetScreenlocked started.");
+    SCLOCK_HILOGD("ScreenLockManagerService SetScreenlocked isScreenlocked:%{public}d", isScreenlocked);
     stateValue_.SetScreenlocked(isScreenlocked);
 }
 
-void StateValueTest::Reset()
+void ScreenStateValue::Reset()
 {
     isScreenlocked_ = true;
     screenlockEnabled_ = true;
