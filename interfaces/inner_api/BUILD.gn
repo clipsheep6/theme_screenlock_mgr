@@ -58,11 +58,7 @@ ohos_shared_library("screenlock_client") {
       "${screenlock_mgr_path}/frameworks/native/include",
     ]
 
-    deps = [
-      "${graphic_base_path}/graphic_2d/rosen/modules/render_service_client:librender_service_client",
-      "${screenlock_mgr_path}/utils:screenlock_utils",
-      "${window_base_path}//window_scene/session_manager:session_manager",
-    ]
+    deps = [ "${screenlock_mgr_path}/utils:screenlock_utils" ]
 
     external_deps = [
       "c_utils:utils",
@@ -71,6 +67,7 @@ ohos_shared_library("screenlock_client") {
       "ipc:ipc_single",
       "samgr:samgr_proxy",
       "window_manager:libwsutils",
+      "window_manager:session_manager",
     ]
     subsystem_name = "theme"
     innerapi_tags = [ "platformsdk" ]
