@@ -61,10 +61,12 @@ ohos_shared_library("screenlock_client") {
     deps = [ "${screenlock_mgr_path}/utils:screenlock_utils" ]
 
     external_deps = [
+      "ability_runtime:ability_manager",
       "c_utils:utils",
       "graphic_standard:librender_service_client",
       "hitrace_native:hitrace_meter",
       "hiviewdfx_hilog_native:libhilog",
+      "input:libmmi-client",
       "ipc:ipc_single",
       "samgr:samgr_proxy",
       "window_manager:libwsutils",

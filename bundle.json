@@ -43,7 +43,8 @@
         "window_manager",
         "hiviewdfx_hilog_native",
         "user_auth_framework",
-        "c_utils"
+        "c_utils",
+        "input"
       ],
       "third_party": []
     },
@@ -62,11 +63,11 @@
       },
       "inner_api": [
         {
-          "name": "//base/theme/screenlock_mgr/interfaces/inner_api:screenlock_client", 
+          "name": "//base/theme/screenlock_mgr/interfaces/inner_api:screenlock_client",
           "header": {
             "header_files": [
               "screenlock_manager.h"
-            ], 
+            ],
             "header_base": "//base/theme/screenlock_mgr/interfaces/inner_api/include"
           }
         },
@@ -80,7 +81,7 @@
             "header_base": "//base/theme/screenlock_mgr/services/include"
           }
         }
-      ], 
+      ],
       "test": [
         "//base/theme/screenlock_mgr/frameworks/js/napi/test:unittest",
         "//base/theme/screenlock_mgr/test:unittest",
