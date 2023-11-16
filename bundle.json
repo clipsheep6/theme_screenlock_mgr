@@ -66,13 +66,7 @@
             "header_files": [
               "screenlock_manager.h"
             ], 
-            "header_base": [
-              "//base/theme/screenlock_mgr/interfaces/inner_api/include",
-              "//base/theme/screenlock_mgr/frameworks/native/include/screenlock_callback_interface.h",
-              "//base/theme/screenlock_mgr/frameworks/native/include/screenlock_system_ability_interface.h",
-              "//base/theme/screenlock_mgr/service/include/screenlock_manager_interface.h",
-              "//base/theme/screenlock_mgr/utils/include/screenlock_common.h"   
-            ]
+            "header_base": "//base/theme/screenlock_mgr/interfaces/inner_api/include"
           }
         }
       ], 
