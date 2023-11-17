@@ -27,7 +27,7 @@
 #include "sclock_log.h"
 #include "screenlock_callback_test.h"
 #include "screenlock_client_test.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 #include "screenlock_event_list_test.h"
 #include "screenlock_notify_test_instance.h"
 #include "screenlock_system_ability.h"

@@ -20,7 +20,7 @@
 #include <string>
 
 #include "iremote_stub.h"
-#include "screenlock_system_ability_interface.h"
+#include "interfaces\inner_api\include\screenlock_system_ability_interface.h"
 #include "visibility.h"
 
 namespace OHOS {

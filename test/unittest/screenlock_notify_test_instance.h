@@ -16,7 +16,7 @@
 #define NAPI_SCREENLOCK_NOTIFY_TEST_INSTANCE_H
 #include <list>
 
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 #include "screenlock_event_list_test.h"
 #include "screenlock_system_ability_stub.h"
 

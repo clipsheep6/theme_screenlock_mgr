@@ -18,7 +18,7 @@
 
 #include "iremote_proxy.h"
 #include "refbase.h"
-#include "screenlock_callback_interface.h"
+#include "interfaces\inner_api\include\screenlock_callback_interface.h"
 
 namespace OHOS {
 namespace ScreenLock {

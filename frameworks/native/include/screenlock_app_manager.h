@@ -21,8 +21,8 @@
 
 #include "iremote_object.h"
 #include "refbase.h"
-#include "screenlock_manager_interface.h"
-#include "screenlock_system_ability_interface.h"
+#include "interfaces\inner_api\include\screenlock_manager_interface.h"
+#include "interfaces\inner_api\include\screenlock_system_ability_interface.h"
 #include "visibility.h"
 
 namespace OHOS {

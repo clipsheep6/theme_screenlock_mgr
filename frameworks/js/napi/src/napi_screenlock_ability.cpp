@@ -26,7 +26,7 @@
 #include "sclock_log.h"
 #include "screenlock_app_manager.h"
 #include "screenlock_callback.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 #include "screenlock_js_util.h"
 #include "screenlock_manager.h"
 #include "screenlock_system_ability_callback.h"

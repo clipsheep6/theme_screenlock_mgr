@@ -25,9 +25,9 @@
 #include "event_handler.h"
 #include "ffrt.h"
 #include "iremote_object.h"
-#include "screenlock_callback_interface.h"
+#include "interfaces\inner_api\include\screenlock_callback_interface.h"
 #include "screenlock_manager_stub.h"
-#include "screenlock_system_ability_interface.h"
+#include "interfaces\inner_api\include\screenlock_system_ability_interface.h"
 #include "system_ability.h"
 #include "visibility.h"
 

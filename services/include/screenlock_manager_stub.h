@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #include "iremote_stub.h"
-#include "screenlock_manager_interface.h"
+#include "interfaces\inner_api\include\screenlock_manager_interface.h"
 
 namespace OHOS {
 namespace ScreenLock {

@@ -38,7 +38,7 @@
 #include "parameter.h"
 #include "sclock_log.h"
 #include "screenlock_appinfo.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 #include "screenlock_get_info_callback.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
