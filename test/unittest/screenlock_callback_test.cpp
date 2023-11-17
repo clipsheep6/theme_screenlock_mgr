@@ -15,7 +15,7 @@
 #include "screenlock_callback_test.h"
 
 #include "sclock_log.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 
 namespace OHOS {
 namespace ScreenLock {

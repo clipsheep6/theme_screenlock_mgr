@@ -21,7 +21,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
-#include "screenlock_callback_interface.h"
+#include "interfaces\inner_api\include\screenlock_callback_interface.h"
 
 namespace OHOS::ScreenLock {
 

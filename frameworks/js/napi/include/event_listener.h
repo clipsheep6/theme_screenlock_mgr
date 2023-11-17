@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #include "napi/native_api.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 
 namespace OHOS {
 namespace ScreenLock {

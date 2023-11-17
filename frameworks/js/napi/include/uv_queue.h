@@ -18,9 +18,9 @@
 #include <iostream>
 
 #include "napi/native_api.h"
-#include "screenlock_callback_interface.h"
-#include "screenlock_common.h"
-#include "screenlock_system_ability_interface.h"
+#include "interfaces\inner_api\include\screenlock_callback_interface.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_system_ability_interface.h"
 #include "uv.h"
 
 namespace OHOS::ScreenLock {

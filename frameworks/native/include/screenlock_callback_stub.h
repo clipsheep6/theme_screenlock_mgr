@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #include "iremote_stub.h"
-#include "screenlock_callback_interface.h"
+#include "interfaces\inner_api\include\screenlock_callback_interface.h"
 #include "visibility.h"
 
 namespace OHOS {

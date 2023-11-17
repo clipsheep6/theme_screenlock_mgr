@@ -20,7 +20,7 @@
 
 #include "iremote_proxy.h"
 #include "refbase.h"
-#include "screenlock_system_ability_interface.h"
+#include "interfaces\inner_api\include\screenlock_system_ability_interface.h"
 
 namespace OHOS {
 namespace ScreenLock {

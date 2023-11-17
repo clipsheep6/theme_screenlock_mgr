@@ -21,7 +21,7 @@
 #include "js_native_api_types.h"
 #include "node_api.h"
 #include "sclock_log.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 #include "uv_queue.h"
 
 namespace OHOS {

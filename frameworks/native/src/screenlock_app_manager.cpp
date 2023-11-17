@@ -18,7 +18,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "sclock_log.h"
-#include "screenlock_common.h"
+#include "interfaces\inner_api\include\screenlock_common.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
