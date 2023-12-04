@@ -368,9 +368,11 @@ bool ScreenLockSystemAbility::IsScreenLocked()
     SCLOCK_HILOGI("IsScreenLocked = %{public}d", isScreenLocked);
     return isScreenLocked;
 }
-
 bool ScreenLockSystemAbility::GetSecure()
 {
+#ifdef USERAUTH_CLIENT
+    return false;
+#endif
     if (state_ != ServiceRunningState::STATE_RUNNING) {
         SCLOCK_HILOGW("ScreenLockSystemAbility GetSecure restart.");
         OnStart();
@@ -394,7 +396,6 @@ bool ScreenLockSystemAbility::GetSecure()
     }
     return false;
 }
-
 int32_t ScreenLockSystemAbility::OnSystemEvent(const sptr<ScreenLockSystemAbilityInterface> &listener)
 {
     if (!IsSystemApp()) {
