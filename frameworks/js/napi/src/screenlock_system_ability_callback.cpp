@@ -39,6 +39,7 @@ ScreenlockSystemAbilityCallback::~ScreenlockSystemAbilityCallback()
 
 void ScreenlockSystemAbilityCallback::OnCallBack(const SystemEvent &systemEvent)
 {
+    SCLOCK_HILOGD("OnCallBack");
     if (handler_ == nullptr) {
         SCLOCK_HILOGE("eventHandler is nullptr");
         return;
