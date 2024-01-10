@@ -77,10 +77,15 @@ ohos_shared_library("screenlock_server") {
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
-    "user_auth_framework:userauth_client",
     "window_manager:libdm",
     "window_manager:libwm",
   ]
+
+  defines = []
+  if (user_auth_framework) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    defines += [ "USERAUTH_CLIENT" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "theme"
@@ -132,10 +137,14 @@ ohos_static_library("screenlock_server_static") {
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
-    "user_auth_framework:userauth_client",
     "window_manager:libdm",
     "window_manager:libwm",
   ]
+  defines = []
+  if (user_auth_framework) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    defines += [ "USERAUTH_CLIENT" ]
+  }
 
   subsystem_name = "theme"
   part_name = "screenlock_mgr"
