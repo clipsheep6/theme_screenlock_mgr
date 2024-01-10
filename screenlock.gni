@@ -18,3 +18,11 @@ window_base_path = "//foundation/window/window_manager"
 graphic_base_path = "//foundation/graphic"
 
 resourceschedule_ffrt_path = "//foundation/resourceschedule/ffrt"
+
+declare_args() {
+  user_auth_framework = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.useriam_user_auth_framework)) {
+    user_auth_framework = true
+  }
+}
