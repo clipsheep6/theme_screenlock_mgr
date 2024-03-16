@@ -36,13 +36,13 @@ bool ScreenLockAppInfo::GetAppInfoByToken(std::uint32_t tokenId, AppInfo &appInf
         }
         case ATokenTypeEnum::TOKEN_NATIVE:
         case ATokenTypeEnum::TOKEN_SHELL: {
-            NativeTokenInfo tokenInfo;
-            if (AccessTokenKit::GetNativeTokenInfo(tokenId, tokenInfo) != 0) {
+            std::string processName;
+            if (AccessTokenKit::GetNativeTokenName(tokenId, processName) != 0) {
                 SCLOCK_HILOGE("get native token info fail");
                 return false;
             }
-            appInfo.bundleName = tokenInfo.processName;
-            appInfo.appId = tokenInfo.processName;
+            appInfo.bundleName = processName;
+            appInfo.appId = processName;
             return true;
         }
         default: {
