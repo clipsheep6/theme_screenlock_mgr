@@ -33,6 +33,8 @@ ScreenLockManager::ScreenLockManager()
 
 ScreenLockManager::~ScreenLockManager()
 {
+    SCLOCK_HILOGW("~ScreenLockManager");
+    RemoveDeathRecipient();
 }
 
 sptr<ScreenLockManager> ScreenLockManager::GetInstance()
@@ -165,6 +167,13 @@ sptr<ScreenLockManagerInterface> ScreenLockManager::GetProxy()
         screenlockManagerProxy_ = GetScreenLockManagerProxy();
     }
     return screenlockManagerProxy_;
+}
+
+void ScreenLockManager::RemoveDeathRecipient()
+{
+    if (screenlockManagerProxy_ != nullptr && deathRecipient_ != nullptr) {
+        screenlockManagerProxy_->AsObject()->RemoveDeathRecipient(deathRecipient_);
+    }
 }
 } // namespace ScreenLock
 } // namespace OHOS
