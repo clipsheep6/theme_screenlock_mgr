@@ -33,11 +33,11 @@ bool FuzzScreenlockUtils(const uint8_t *rawData, size_t size)
     if (size < LENGTH) {
         return true;
     }
+    int userId = static_cast<int32_t>(rawData[0] % 100);
     auto preferencesUtil = DelayedSingleton<PreferencesUtil>::GetInstance();
     if (preferencesUtil == nullptr) {
         return false;
     }
-    int userId = 100;
 
     // string
     std::string stringlVal = "test";
