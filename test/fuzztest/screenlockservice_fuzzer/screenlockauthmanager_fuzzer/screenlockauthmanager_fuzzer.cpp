@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <string_ex.h>
 #include "strongauthmanager.h"
+#include "commeventsubscriber.h"
 
 using namespace OHOS::ScreenLock;
 
@@ -37,7 +38,7 @@ bool FuzzScreenlockAuthManager(const uint8_t *rawData, size_t size)
         return false;
     }
 
-    int32_t userId = 100;
+    int32_t userId = static_cast<int32_t>(rawData[0] % 100);
     authmanager->RegistUserAuthSuccessEventListener();
     authmanager->StartStrongAuthTimer(userId);
     authmanager->GetTimerId(userId);
@@ -45,6 +46,9 @@ bool FuzzScreenlockAuthManager(const uint8_t *rawData, size_t size)
     authmanager->DestroyStrongAuthTimer(userId);
     authmanager->DestroyAllStrongAuthTimer();
     authmanager->UnRegistUserAuthSuccessEventListener();
+
+    Singleton<CommeventMgr>::GetInstance().SubscribeEvent();
+    Singleton<CommeventMgr>::GetInstance().UnSubscribeEvent();
     return true;
 }
 
